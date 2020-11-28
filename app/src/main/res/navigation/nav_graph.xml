@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/bottom_nav_mapview">
+
+    <fragment
+        android:id="@id/bottom_nav_mapview"
+        android:name="com.gallosalocin.go4lunch.ui.fragments.MapViewFragment"
+        android:label="@string/toolbar_title_i_am_hungry"
+        tools:layout="@layout/fragment_map_view">
+        <action
+            android:id="@+id/action_mapViewFragment_to_detailsFragment"
+            app:destination="@id/detailsFragment" />
+    </fragment>
+    <fragment
+        android:id="@id/bottom_nav_listview"
+        android:name="com.gallosalocin.go4lunch.ui.fragments.ListViewFragment"
+        android:label="@string/toolbar_title_i_am_hungry"
+        tools:layout="@layout/fragment_list_view">
+        <action
+            android:id="@+id/action_listViewFragment_to_detailsFragment"
+            app:destination="@id/detailsFragment" />
+    </fragment>
+    <fragment
+        android:id="@id/bottom_nav_workmates"
+        android:name="com.gallosalocin.go4lunch.ui.fragments.WorkmatesFragment"
+        android:label="@string/toolbar_title_available_workmates"
+        tools:layout="@layout/fragment_workmates">
+        <action
+            android:id="@+id/action_workmatesFragment_to_detailsFragment"
+            app:destination="@id/detailsFragment" />
+    </fragment>
+    <fragment
+        android:id="@id/logoutFragment"
+        android:name="com.gallosalocin.go4lunch.ui.fragments.LogoutFragment"
+        android:label=""
+        tools:layout="@layout/fragment_logout" />
+    <fragment
+        android:id="@id/settingsFragment"
+        android:name="com.gallosalocin.go4lunch.ui.fragments.SettingsFragment"
+        android:label="@string/toolbar_title_settings"
+        tools:layout="@layout/fragment_settings" />
+    <fragment
+        android:id="@id/lunchFragment"
+        android:name="com.gallosalocin.go4lunch.ui.fragments.LunchFragment"
+        android:label="@string/toolbar_title_my_lunch"
+        tools:layout="@layout/fragment_lunch" />
+    <fragment
+        android:id="@+id/detailsFragment"
+        android:name="com.gallosalocin.go4lunch.ui.fragments.DetailsFragment"
+        android:label="@string/toolbar_title_detail"
+        tools:layout="@layout/fragment_details">
+        <argument
+            android:name="restaurantResult"
+            app:argType="com.gallosalocin.go4lunch.models.RestaurantResult"
+            app:nullable="true" />
+        <argument
+            android:name="placeId"
+            app:argType="string"
+            app:nullable="true" />
+        <action
+            android:id="@+id/action_detailsFragment_to_bottom_nav_mapview"
+            app:destination="@id/bottom_nav_mapview"
+            app:popUpTo="@id/bottom_nav_mapview"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_detailsFragment_to_bottom_nav_listview"
+            app:destination="@id/bottom_nav_listview"
+            app:popUpTo="@id/bottom_nav_listview" />
+        <action
+            android:id="@+id/action_detailsFragment_to_bottom_nav_workmates"
+            app:destination="@id/bottom_nav_workmates"
+            app:popUpTo="@id/bottom_nav_workmates" />
+    </fragment>
+</navigation>

@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/cl_my_lunch"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    tools:context=".ui.fragments.LunchFragment">
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/iv_my_lunch_picture"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/family_dinner_wide"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_my_lunch_choice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="16dp"
+        android:backgroundTint="@android:color/white"
+        android:src="@drawable/ic_check_empty"
+        app:layout_constraintBottom_toBottomOf="@id/iv_my_lunch_picture"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/iv_my_lunch_picture"
+        app:maxImageSize="32dp"
+        tools:targetApi="lollipop" />
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cv_my_lunch_address"
+        android:layout_width="match_parent"
+        android:layout_height="90dp"
+        android:backgroundTint="@color/colorPrimary"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/iv_my_lunch_picture"
+        tools:targetApi="lollipop">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tv_my_lunch_name_restaurant"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="10dp"
+                android:lines="1"
+                android:textColor="@android:color/white"
+                android:textSize="20sp"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintRight_toLeftOf="@id/rating_my_lunch"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Le Zinc" />
+
+            <androidx.appcompat.widget.AppCompatRatingBar
+                android:id="@+id/rating_my_lunch"
+                style="@style/Widget.AppCompat.RatingBar.Small"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:isIndicator="true"
+                android:numStars="3"
+                android:progressTint="@color/ratingYellow"
+                android:textAlignment="center"
+                app:layout_constraintBottom_toBottomOf="@id/tv_my_lunch_name_restaurant"
+                app:layout_constraintLeft_toRightOf="@+id/tv_my_lunch_name_restaurant"
+                app:layout_constraintTop_toTopOf="@id/tv_my_lunch_name_restaurant" />
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/tv_my_lunch_information"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:textColor="@android:color/white"
+                app:layout_constraintLeft_toLeftOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tv_my_lunch_name_restaurant"
+                tools:text="French - 12 rue du Faubourg Poissonnière" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+
+    <Button
+        android:id="@+id/btn_my_lunch_call"
+        style="@style/ButtonDetails"
+        android:drawableTop="@drawable/ic_call"
+        android:text="@string/call_cap"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toLeftOf="@id/btn_my_lunch_like"
+        app:layout_constraintTop_toBottomOf="@id/cv_my_lunch_address" />
+
+    <Button
+        android:id="@+id/btn_my_lunch_like"
+        style="@style/ButtonDetails"
+        android:drawableTop="@drawable/ic_like_red"
+        android:text="@string/like_cap"
+        app:layout_constraintLeft_toRightOf="@id/btn_my_lunch_call"
+        app:layout_constraintRight_toLeftOf="@id/btn_my_lunch_website"
+        app:layout_constraintTop_toBottomOf="@id/cv_my_lunch_address" />
+
+    <Button
+        android:id="@+id/btn_my_lunch_website"
+        style="@style/ButtonDetails"
+        android:drawableTop="@drawable/ic_website"
+        android:text="@string/website_cap"
+        app:layout_constraintLeft_toRightOf="@id/btn_my_lunch_like"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/cv_my_lunch_address" />
+
+    <LinearLayout
+        android:id="@+id/ll_my_lunch"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="invisible">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:src="@drawable/ic_check_my_lunch" />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
+            android:gravity="center"
+            android:text="@string/tv_my_lunch_message"
+            android:textAlignment="center"
+            android:textColor="@android:color/black"
+            android:textSize="48sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_my_lunch"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_marginTop="10dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/btn_my_lunch_call"
+        tools:listitem="@layout/item_workmate" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.preference.PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory
+        app:key="key_pref_general"
+        app:title="@string/pref_category_general">
+        <ListPreference
+            app:defaultValue="fr"
+            app:dialogTitle="@string/pref_dialog_language_title"
+            app:entries="@array/pref_languages_entries"
+            app:entryValues="@array/pref_languages_values"
+            app:icon="@drawable/ic_language"
+            app:key="key_pref_language"
+            app:title="@string/pref_title_language"
+            app:useSimpleSummaryProvider="true" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:key="key_pref_map"
+        app:title="@string/pref_category_map">
+        <SeekBarPreference
+            android:max="21"
+            app:defaultValue="18"
+            app:icon="@drawable/ic_zoom"
+            app:key="key_pref_zoom"
+            app:min="3"
+            app:seekBarIncrement="1"
+            app:showSeekBarValue="true"
+            app:summary="Default zoom: 18"
+            app:title="@string/pref_title_zoom" />
+        <EditTextPreference
+            android:defaultValue="500"
+            android:dialogMessage="min: 100 - max: 50000 (default: 500)"
+            app:dialogTitle="Change Radius"
+            app:icon="@drawable/ic_radius"
+            app:key="key_pref_radius_2"
+            app:title="@string/pref_title_radius"
+            app:useSimpleSummaryProvider="true" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        app:key="key_pref_about"
+        app:title="@string/pref_category_about">
+        <Preference
+            android:summary="@string/pref_dev_sum"
+            app:icon="@drawable/ic_developer"
+            app:key="key_pref_developer"
+            app:title="@string/pref_title_developer" />
+        <!--suppress AndroidDomInspection -->
+        <Preference
+            android:summary="@string/versionName"
+            app:icon="@drawable/ic_build"
+            app:key="key_pref_version"
+            app:title="@string/pref_title_version" />
+    </PreferenceCategory>
+
+</androidx.preference.PreferenceScreen>

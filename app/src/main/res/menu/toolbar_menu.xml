@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/tb_menu_search_btn"
+        android:icon="@drawable/ic_search"
+        android:title="@string/toolbar_menu_search"
+        app:actionViewClass="androidx.appcompat.widget.AppCompatAutoCompleteTextView"
+        app:showAsAction="always|collapseActionView" />
+
+    <item
+        android:id="@+id/tb_menu_sort_btn"
+        android:icon="@drawable/ic_sort"
+        android:title="@string/toolbar_menu_sort"
+        app:showAsAction="ifRoom|collapseActionView">
+        <menu>
+            <item
+                android:id="@+id/toolbar_sort_name"
+                android:title="@string/toolbar_menu_sort_by_name"
+                app:showAsAction="never"
+                />
+            <item
+                android:id="@+id/toolbar_sort_distance"
+                android:title="@string/toolbar_menu_sort_by_distance"
+                app:showAsAction="never"
+                />
+            <item
+                android:id="@+id/toolbar_sort_rating"
+                android:title="@string/toolbar_menu_sort_by_rating"
+                app:showAsAction="never"
+                />
+            <item
+                android:id="@+id/toolbar_sort_workmates"
+                android:title="@string/toolbar_menu_sort_by_workmates"
+                app:showAsAction="never"
+                />
+        </menu>
+    </item>
+</menu>
