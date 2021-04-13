@@ -37,7 +37,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/iv_details_picture"
         app:maxImageSize="32dp"
-        tools:targetApi="lollipop" />
+        tools:targetApi="lollipop"
+        android:contentDescription="@string/select_for_lunch" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cv_details_address"

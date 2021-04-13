@@ -55,5 +55,6 @@
     <string name="notification_title">Votre choix pour déjeuner aujourd\'hui:</string>
     <string name="notification_channel_title">Sélection restaurant du jour</string>
     <string name="notification_channel_description">Recevoir une notification à 12h00 avec le choix de votre restaurant.</string>
+    <string name="select_for_lunch">Select for lunch</string>
 
 </resources>
