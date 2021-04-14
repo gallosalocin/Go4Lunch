@@ -8,12 +8,6 @@ data class RestaurantOpeningHours(
         var isOpenNow: Boolean = false,
 ) : Serializable {
 
-//    constructor(openNow: Boolean) {
-//        isOpenNow = openNow
-//    }
-//
-//    constructor() {}
-
     override fun toString(): String {
         return "RestaurantOpeningHours{" +
                 "openNow=" + isOpenNow +

@@ -11,13 +11,6 @@ data class RestaurantPhoto(
         var width: Int = 0,
 ) : Serializable {
 
-//    constructor() {}
-//    constructor(height: Int, photoReference: String?, width: Int) {
-//        this.height = height
-//        this.photoReference = photoReference
-//        this.width = width
-//    }
-
     override fun toString(): String {
         return "Photo{" +
                 "height=" + height +

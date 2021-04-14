@@ -19,12 +19,4 @@ data class DetailsResponse(
                 ", status='" + status + '\'' +
                 '}'
     }
-
-//    constructor() {}
-//    constructor(htmlAttributions: List<Any>?, detailsResult: DetailsResult?, status: String?) {
-//        this.htmlAttributions = htmlAttributions
-//        this.detailsResult = detailsResult
-//        this.status = status
-//    }
-
 }

@@ -20,7 +20,7 @@ data class RestaurantResult(
         var rating: Float = 0f,
         var distance: Int = 0,
         var workmates: Float = 0F,
-        ) : Serializable {
+) : Serializable {
 
     override fun toString(): String {
         return "RestaurantResult{" +
@@ -30,44 +30,4 @@ data class RestaurantResult(
                 '}'
     }
 
-//    constructor() {}
-//    constructor(geometry: RestaurantGeometry?, name: String?, restaurantOpeningHours: RestaurantOpeningHours?, address: String?, placeId: String?,
-//                restaurantPhotos: List<RestaurantPhoto>?, rating: Float, workmates: Int, distance: Int) {
-//        this.geometry = geometry
-//        this.name = name
-//        this.restaurantOpeningHours = restaurantOpeningHours
-//        this.address = address
-//        this.placeId = placeId
-//        this.restaurantPhotos = restaurantPhotos
-//        this.rating = rating
-//        this.workmates = workmates
-//        this.distance = distance
-//    }
-//
-//    constructor(name: String?, restaurantOpeningHours: RestaurantOpeningHours?, address: String?, placeId: String?,
-//                restaurantPhotos: List<RestaurantPhoto>?, rating: Float, workmates: Int, distance: Int) {
-//        this.name = name
-//        this.restaurantOpeningHours = restaurantOpeningHours
-//        this.address = address
-//        this.placeId = placeId
-//        this.restaurantPhotos = restaurantPhotos
-//        this.rating = rating
-//        this.workmates = workmates
-//        this.distance = distance
-//    }
-//
-//    constructor(name: String?, rating: Float, workmates: Int, distance: Int) {
-//        this.name = name
-//        this.rating = rating
-//        this.workmates = workmates
-//        this.distance = distance
-//    }
-//
-//    constructor(name: String?, address: String?, rating: Float, workmates: Int, distance: Int) {
-//        this.name = name
-//        this.address = address
-//        this.rating = rating
-//        this.workmates = workmates
-//        this.distance = distance
-//    }
 }

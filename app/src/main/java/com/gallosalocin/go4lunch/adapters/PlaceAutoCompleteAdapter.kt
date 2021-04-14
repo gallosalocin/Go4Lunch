@@ -48,11 +48,11 @@ class PlaceAutoCompleteAdapter(
 
     override fun getFilter(): Filter {
         return object : Filter() {
-            override fun performFiltering(constraint: CharSequence): FilterResults {
+            override fun performFiltering(constraint: CharSequence?): FilterResults {
                 val results = FilterResults()
                 // Skip the autocomplete query if no constraints are given.
                 // Query the autocomplete API for the (constraint) search string.
-                mResultList = getAutoComplete(constraint)
+                mResultList = constraint?.let { getAutoComplete(it) }
                 if (mResultList != null) {
                     // The API successfully returned results.
                     results.values = mResultList
@@ -61,7 +61,7 @@ class PlaceAutoCompleteAdapter(
                 return results
             }
 
-            override fun publishResults(constraint: CharSequence, results: FilterResults) {
+            override fun publishResults(constraint: CharSequence?, results: FilterResults) {
                 if (results.count > 0) {
                     // The API returned at least one result, update the data.
                     notifyDataSetChanged()
@@ -83,7 +83,7 @@ class PlaceAutoCompleteAdapter(
         }
     }
 
-    private fun getAutoComplete(constraint: CharSequence): List<AutocompletePrediction>? {
+    private fun getAutoComplete(constraint: CharSequence?): List<AutocompletePrediction>? {
         // Create a new token for the autocomplete session. Pass this to FindAutocompletePredictionsRequest,
         // and once again when the user makes a selection (for example when calling fetchPlace()).
         val token = AutocompleteSessionToken.newInstance()

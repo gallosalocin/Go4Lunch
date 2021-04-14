@@ -81,7 +81,12 @@ class MapViewFragment : Fragment(R.layout.fragment_map_view), OnMapReadyCallback
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentMapViewBinding.inflate(inflater, container, false)
-        Timber.d("onCreateView: called")
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
         if (mAuth != null) {
             requestPermissions()
         }
@@ -91,12 +96,6 @@ class MapViewFragment : Fragment(R.layout.fragment_map_view), OnMapReadyCallback
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
         defaultZoom = sharedPreferences.getInt("key_pref_zoom", 18).toFloat()
         radius = sharedPreferences.getString("key_pref_radius_2", "500")
-        return binding.root
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        Timber.d("onViewCreated: called")
 
         navController = Navigation.findNavController(view)
         restaurantViewModel = ViewModelProvider(this).get(RestaurantViewModel::class.java)

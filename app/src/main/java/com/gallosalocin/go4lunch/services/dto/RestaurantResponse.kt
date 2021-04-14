@@ -24,13 +24,4 @@ data class RestaurantResponse(
                 ", status='" + status + '\'' +
                 '}'
     }
-
-//    constructor() {}
-//    constructor(htmlAttributions: List<Any>?, nextPageToken: String?, restaurantResults: List<RestaurantResult>?, status: String?) {
-//        this.htmlAttributions = htmlAttributions
-//        this.nextPageToken = nextPageToken
-//        this.restaurantResults = restaurantResults
-//        this.status = status
-//    }
-
 }

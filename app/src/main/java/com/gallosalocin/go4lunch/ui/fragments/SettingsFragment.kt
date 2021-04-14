@@ -9,16 +9,16 @@ import java.util.*
 
 class SettingsFragment : PreferenceFragmentCompat() {
 
-    private var sharedPreferences: SharedPreferences? = null
+    private lateinit var sharedPreferences: SharedPreferences
 
-    override fun onCreatePreferences(savedInstanceState: Bundle, rootKey: String) {
+    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.preferences, rootKey)
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext().applicationContext)
         loadSettings()
     }
 
     private fun loadSettings() {
-        val language = sharedPreferences!!.getString("key_pref_language", "")
+        val language = sharedPreferences.getString("key_pref_language", "")
         if (language != null) {
             setAppLocale(language)
         }

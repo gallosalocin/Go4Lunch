@@ -7,12 +7,6 @@ data class RestaurantLocation(
         var lng: Float = 0f,
 ) : Serializable {
 
-//    constructor() {}
-//    constructor(lat: Float, lng: Float) {
-//        this.lat = lat
-//        this.lng = lng
-//    }
-
     override fun toString(): String {
         return "RestaurantLocation{" +
                 "lat=" + lat +

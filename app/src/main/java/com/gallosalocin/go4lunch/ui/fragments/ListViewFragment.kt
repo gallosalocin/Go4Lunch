@@ -151,33 +151,60 @@ class ListViewFragment : Fragment(R.layout.fragment_list_view) {
         when (item.itemId) {
             R.id.tb_menu_search_btn -> return true
             R.id.toolbar_sort_name -> {
+                val restaurantResultListFiltered = restaurantResultList.sortedBy { it.name?.toLowerCase(Locale.ROOT) }
+
                 if (stateName) {
-                    restaurantResultList.sortedBy { it.name }
+                    restaurantAdapter.submitList(restaurantResultListFiltered, kotlinx.coroutines.Runnable {
+                        binding.rvListView.scrollToPosition(0)
+                    })
                 } else {
-                    restaurantResultList.sortedBy { it.name }.reversed()
+                    restaurantAdapter.submitList(restaurantResultListFiltered.reversed(), kotlinx.coroutines.Runnable {
+                        binding.rvListView.scrollToPosition(0)
+                    })
                 }
-//                restaurantResultList.sort(if (stateName) Comparator.comparing(RestaurantResult::name) else Comparator.comparing(RestaurantResult::name).reversed())
                 stateName = !stateName
-                restaurantAdapter.notifyDataSetChanged()
-                return true
             }
             R.id.toolbar_sort_distance -> {
-//                restaurantResultList!!.sort(if (stateDistance) Comparator.comparing(RestaurantResult::distance) else Comparator.comparing(RestaurantResult::distance).reversed())
+                val restaurantResultListFiltered = restaurantResultList.sortedBy { it.distance }
+
+                if (stateDistance) {
+                    restaurantAdapter.submitList(restaurantResultListFiltered, kotlinx.coroutines.Runnable {
+                        binding.rvListView.scrollToPosition(0)
+                    })
+                } else {
+                    restaurantAdapter.submitList(restaurantResultListFiltered.reversed(), kotlinx.coroutines.Runnable {
+                        binding.rvListView.scrollToPosition(0)
+                    })
+                }
                 stateDistance = !stateDistance
-                restaurantAdapter.notifyDataSetChanged()
-                return true
             }
             R.id.toolbar_sort_rating -> {
-//                restaurantResultList!!.sort(if (stateRating) Comparator.comparing(RestaurantResult::rating).reversed() else Comparator.comparing(RestaurantResult::rating))
+                val restaurantResultListFiltered = restaurantResultList.sortedBy { it.rating }
+
+                if (stateRating) {
+                    restaurantAdapter.submitList(restaurantResultListFiltered.reversed(), kotlinx.coroutines.Runnable {
+                        binding.rvListView.scrollToPosition(0)
+                    })
+                } else {
+                    restaurantAdapter.submitList(restaurantResultListFiltered, kotlinx.coroutines.Runnable {
+                        binding.rvListView.scrollToPosition(0)
+                    })
+                }
                 stateRating = !stateRating
-                restaurantAdapter.notifyDataSetChanged()
-                return true
             }
             R.id.toolbar_sort_workmates -> {
-//                restaurantResultList!!.sort(if (stateWorkmates) Comparator.comparing(RestaurantResult::workmates).reversed() else Comparator.comparing(RestaurantResult::workmates))
+                val restaurantResultListFiltered = restaurantResultList.sortedBy { it.workmates }
+
+                if (stateWorkmates) {
+                    restaurantAdapter.submitList(restaurantResultListFiltered.reversed(), kotlinx.coroutines.Runnable {
+                        binding.rvListView.scrollToPosition(0)
+                    })
+                } else {
+                    restaurantAdapter.submitList(restaurantResultListFiltered, kotlinx.coroutines.Runnable {
+                        binding.rvListView.scrollToPosition(0)
+                    })
+                }
                 stateWorkmates = !stateWorkmates
-                restaurantAdapter.notifyDataSetChanged()
-                return true
             }
         }
         return super.onOptionsItemSelected(item)

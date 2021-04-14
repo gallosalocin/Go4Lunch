@@ -35,25 +35,4 @@ data class DetailsResult(
                 '}'
     }
 
-//    constructor() {}
-//    constructor(formattedPhoneNumber: String?, restaurantOpeningHours: RestaurantOpeningHours?, detailsGeometry: RestaurantGeometry?, name: String?,
-//                detailsPhotos: List<RestaurantPhoto>?, rating: Float, address: String?, website: String?) {
-//        this.formattedPhoneNumber = formattedPhoneNumber
-//        this.restaurantOpeningHours = restaurantOpeningHours
-//        this.detailsGeometry = detailsGeometry
-//        this.name = name
-//        this.detailsPhotos = detailsPhotos
-//        this.rating = rating
-//        this.address = address
-//        this.website = website
-//    }
-//
-//    constructor(formattedPhoneNumber: String?, name: String?, rating: Float, address: String?, website: String?) {
-//        this.formattedPhoneNumber = formattedPhoneNumber
-//        this.name = name
-//        this.rating = rating
-//        this.address = address
-//        this.website = website
-//    }
-
 }

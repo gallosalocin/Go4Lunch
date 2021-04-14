@@ -18,13 +18,6 @@ class RestaurantAdapter(
         private val onItemClickListener: (RestaurantResult) -> Unit,
 ) : ListAdapter<RestaurantResult, RestaurantViewHolder>(DiffCallback()) {
 
-//    private var restaurantResultList: List<RestaurantResult>? = null
-//
-//    fun setData(restaurantResultList: List<RestaurantResult>?) {
-//        this.restaurantResultList = restaurantResultList
-//        notifyDataSetChanged()
-//    }
-
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RestaurantViewHolder {
         val binding = ItemRestaurantBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return RestaurantViewHolder(binding)
@@ -35,10 +28,6 @@ class RestaurantAdapter(
         holder.bind(currentRestaurantResult, onItemClickListener)
 
     }
-
-//    override fun getItemCount(): Int {
-//        return restaurantResultList!!.size
-//    }
 
     class RestaurantViewHolder(private val binding: ItemRestaurantBinding) : RecyclerView.ViewHolder(binding.root) {
 
