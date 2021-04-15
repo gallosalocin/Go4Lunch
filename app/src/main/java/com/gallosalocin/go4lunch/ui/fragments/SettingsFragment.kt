@@ -5,8 +5,10 @@ import android.os.Bundle
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
 import com.gallosalocin.go4lunch.R
+import dagger.hilt.android.AndroidEntryPoint
 import java.util.*
 
+@AndroidEntryPoint
 class SettingsFragment : PreferenceFragmentCompat() {
 
     private lateinit var sharedPreferences: SharedPreferences

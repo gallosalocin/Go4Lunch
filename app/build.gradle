@@ -4,6 +4,7 @@ plugins {
     id 'androidx.navigation.safeargs'
     id 'kotlin-android'
     id 'kotlin-kapt'
+    id 'dagger.hilt.android.plugin'
 }
 
 android {
@@ -56,7 +57,7 @@ android {
 dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
 
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.4.31"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib:1.4.32"
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'androidx.drawerlayout:drawerlayout:1.1.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
@@ -109,6 +110,15 @@ dependencies {
     // Lifecycle
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1'
+    // RxJava
+    implementation "io.reactivex.rxjava3:rxjava:3.0.12"
+    // RxAndroid
+    implementation 'io.reactivex.rxjava3:rxandroid:3.0.0'
+    // Dagger Hilt
+    implementation "com.google.dagger:hilt-android:2.32-alpha"
+    kapt "com.google.dagger:hilt-android-compiler:2.32-alpha"
+    implementation 'androidx.hilt:hilt-lifecycle-viewmodel:1.0.0-alpha03'
+    kapt 'androidx.hilt:hilt-compiler:1.0.0-alpha03'
 }
 
 kapt{

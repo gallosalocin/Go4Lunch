@@ -9,6 +9,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.firebase.ui.firestore.FirestoreRecyclerOptions
@@ -27,20 +28,22 @@ import com.gallosalocin.go4lunch.viewmodels.RestaurantViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.*
 import com.squareup.picasso.Picasso
+import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 import java.util.*
 
+@AndroidEntryPoint
 class LunchFragment : Fragment(R.layout.fragment_lunch) {
 
     private var _binding: FragmentLunchBinding? = null
     private val binding get() = _binding!!
+    private val restaurantViewModel: RestaurantViewModel by viewModels()
 
     private var workmateListener: ListenerRegistration? = null
     private val mAuth = FirebaseAuth.getInstance().currentUser
     private val db = FirebaseFirestore.getInstance()
     private val workmatesCollectionRef = db.collection(WORKMATES_COLLECTION)
     private lateinit var mAdapter: WorkmateAdapter
-    private lateinit var restaurantViewModel: RestaurantViewModel
     private var currentWorkmate: Workmate? = null
     private var isRestaurantCheck = false
     private var isFavoriteCheck = false
@@ -54,8 +57,6 @@ class LunchFragment : Fragment(R.layout.fragment_lunch) {
         super.onViewCreated(view, savedInstanceState)
         val sharedPreferences = requireContext().getSharedPreferences(SHARED_PREFS, Context.MODE_PRIVATE)
         val placeId = sharedPreferences.getString(PLACE_ID_SHARED_PREFS, "")
-
-        restaurantViewModel = ViewModelProvider(this).get(RestaurantViewModel::class.java)
 
         setupRecyclerView(placeId)
     }

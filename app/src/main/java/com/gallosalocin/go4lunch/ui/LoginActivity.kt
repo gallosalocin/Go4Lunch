@@ -16,6 +16,7 @@ import com.gallosalocin.go4lunch.databinding.ActivityLoginBinding
 import com.google.firebase.auth.FirebaseAuth
 import timber.log.Timber
 
+
 open class LoginActivity : AppCompatActivity() {
 
     private var binding: ActivityLoginBinding? = null

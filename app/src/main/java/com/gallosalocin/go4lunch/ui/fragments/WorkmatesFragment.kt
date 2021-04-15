@@ -16,7 +16,9 @@ import com.gallosalocin.go4lunch.util.Constants.CHOSEN_RESTAURANT_ID_FIELD
 import com.gallosalocin.go4lunch.util.Constants.WORKMATES_COLLECTION
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class WorkmatesFragment : Fragment(R.layout.fragment_workmates) {
 
     private var _binding: FragmentWorkmatesBinding? = null

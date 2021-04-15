@@ -10,6 +10,7 @@ import android.view.*
 import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.AppCompatAutoCompleteTextView
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
@@ -36,14 +37,17 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.QuerySnapshot
+import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 import java.util.*
 
+@AndroidEntryPoint
 class ListViewFragment : Fragment(R.layout.fragment_list_view) {
 
     private var _binding: FragmentListViewBinding? = null
     private val binding get() = _binding!!
     private lateinit var navController: NavController
+    private val restaurantViewModel: RestaurantViewModel by viewModels()
 
     private val db = FirebaseFirestore.getInstance()
     private val workmatesCollectionRef = db.collection(WORKMATES_COLLECTION)
@@ -53,18 +57,17 @@ class ListViewFragment : Fragment(R.layout.fragment_list_view) {
     private lateinit var restaurantResultPredictionsList: MutableList<RestaurantResult>
     private var workmate: Workmate? = null
     private lateinit var restaurantAdapter: RestaurantAdapter
-    private lateinit var restaurantViewModel: RestaurantViewModel
-    private var radius: String? = null
+    private lateinit var radius: String
     private var latitude = 0.0
     private var longitude = 0.0
-    private var currentLocation: String? = null
+    private lateinit var currentLocation: String
 
     private var stateName = true
     private var stateDistance = true
     private var stateRating = true
     private var stateWorkmates = true
-    private var placesClient: PlacesClient? = null
-    private var predictionsPlaceIdList: MutableList<String>? = null
+    private lateinit var placesClient: PlacesClient
+    private lateinit var predictionsPlaceIdList: MutableList<String>
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentListViewBinding.inflate(inflater, container, false)
@@ -74,8 +77,7 @@ class ListViewFragment : Fragment(R.layout.fragment_list_view) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
-        radius = sharedPreferences.getString("key_pref_radius_2", "500")
-        restaurantViewModel = ViewModelProvider(this).get(RestaurantViewModel::class.java)
+        radius = sharedPreferences.getString("key_pref_radius_2", "500").toString()
         navController = Navigation.findNavController(view)
         placesClient = Places.createClient(requireContext())
         restaurantResultList = ArrayList()
@@ -125,13 +127,13 @@ class ListViewFragment : Fragment(R.layout.fragment_list_view) {
                         .setSessionToken(token)
                         .setQuery(actionAutoCompleteTextView.text.toString().trim { it <= ' ' })
                         .build()
-                placesClient!!.findAutocompletePredictions(request)
+                placesClient.findAutocompletePredictions(request)
                         .addOnSuccessListener { response: FindAutocompletePredictionsResponse ->
                             for (prediction in response.autocompletePredictions) {
-                                predictionsPlaceIdList!!.add(prediction.placeId)
+                                predictionsPlaceIdList.add(prediction.placeId)
                             }
-                            if (predictionsPlaceIdList!!.isNotEmpty()) {
-                                getRestaurantDetails(predictionsPlaceIdList!![0])
+                            if (predictionsPlaceIdList.isNotEmpty()) {
+                                getRestaurantDetails(predictionsPlaceIdList[0])
                             }
                         }
                         .addOnFailureListener { exception: Exception? ->
@@ -255,29 +257,29 @@ class ListViewFragment : Fragment(R.layout.fragment_list_view) {
     // Get nearby restaurants from api
     private fun getAllRestaurants() {
         val type = "restaurant"
-        restaurantViewModel.getRestaurants(currentLocation!!, radius!!.toInt(), type, BuildConfig.ApiKey).observe(viewLifecycleOwner,
-                { restaurants: List<RestaurantResult>? ->
-                    val currentLocation = Location("")
-                    currentLocation.latitude = latitude
-                    currentLocation.longitude = longitude
-                    for (i in restaurants!!.indices) {
-                        val occurrences = Collections.frequency(chosenRestaurantsList, restaurants[i].placeId)
-                        val restaurantLocation = Location("")
-                        restaurantLocation.latitude = restaurants[i].geometry!!.location!!.lat.toDouble()
-                        restaurantLocation.longitude = restaurants[i].geometry!!.location!!.lng.toDouble()
-                        restaurantResultList.add(RestaurantResult(
-                                name = restaurants[i].name,
-                                restaurantOpeningHours = restaurants[i].restaurantOpeningHours,
-                                address = restaurants[i].address,
-                                placeId = restaurants[i].placeId,
-                                restaurantPhotos = restaurants[i].restaurantPhotos,
-                                rating = restaurants[i].rating * 3 / 5,
-                                workmates = occurrences.toFloat(),
-                                distance = currentLocation.distanceTo(restaurantLocation).toInt()))
-                    }
-                    restaurantAdapter.submitList(restaurantResultList)
-                    binding.rvListView.adapter = restaurantAdapter
-                })
+        restaurantViewModel.getRestaurants(currentLocation, radius.toInt(), type, BuildConfig.ApiKey).observe(viewLifecycleOwner) {
+            restaurants: List<RestaurantResult> ->
+            val currentLocation = Location("")
+            currentLocation.latitude = latitude
+            currentLocation.longitude = longitude
+            for (i in restaurants.indices) {
+                val occurrences = Collections.frequency(chosenRestaurantsList, restaurants[i].placeId)
+                val restaurantLocation = Location("")
+                restaurantLocation.latitude = restaurants[i].geometry!!.location!!.lat.toDouble()
+                restaurantLocation.longitude = restaurants[i].geometry!!.location!!.lng.toDouble()
+                restaurantResultList.add(RestaurantResult(
+                        name = restaurants[i].name,
+                        restaurantOpeningHours = restaurants[i].restaurantOpeningHours,
+                        address = restaurants[i].address,
+                        placeId = restaurants[i].placeId,
+                        restaurantPhotos = restaurants[i].restaurantPhotos,
+                        rating = restaurants[i].rating * 3 / 5,
+                        workmates = occurrences.toFloat(),
+                        distance = currentLocation.distanceTo(restaurantLocation).toInt()))
+            }
+            val restaurantResultListFiltered = restaurantResultList.sortedBy { it.distance }
+            restaurantAdapter.submitList(restaurantResultListFiltered)
+        }
     }
 
     @SuppressLint("MissingPermission")

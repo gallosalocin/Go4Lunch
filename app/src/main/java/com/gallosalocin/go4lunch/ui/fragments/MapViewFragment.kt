@@ -18,6 +18,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.AppCompatAutoCompleteTextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
@@ -49,16 +50,19 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.QuerySnapshot
+import dagger.hilt.android.AndroidEntryPoint
 import pub.devrel.easypermissions.AppSettingsDialog
 import pub.devrel.easypermissions.EasyPermissions
 import pub.devrel.easypermissions.EasyPermissions.PermissionCallbacks
 import timber.log.Timber
 import java.util.*
 
+@AndroidEntryPoint
 class MapViewFragment : Fragment(R.layout.fragment_map_view), OnMapReadyCallback, PermissionCallbacks {
 
     private var _binding: FragmentMapViewBinding? = null
     private val binding get() = _binding!!
+    private val restaurantViewModel: RestaurantViewModel by viewModels()
 
     private val mAuth = FirebaseAuth.getInstance().currentUser
     private val db = FirebaseFirestore.getInstance()
@@ -70,7 +74,6 @@ class MapViewFragment : Fragment(R.layout.fragment_map_view), OnMapReadyCallback
     private var latitude = 0.0
     private var longitude = 0.0
     private var radius: String? = null
-    private var restaurantViewModel: RestaurantViewModel? = null
     private var currentLatLng: LatLng? = null
     private var currentLocation: String? = null
     private var navController: NavController? = null
@@ -98,7 +101,6 @@ class MapViewFragment : Fragment(R.layout.fragment_map_view), OnMapReadyCallback
         radius = sharedPreferences.getString("key_pref_radius_2", "500")
 
         navController = Navigation.findNavController(view)
-        restaurantViewModel = ViewModelProvider(this).get(RestaurantViewModel::class.java)
         var mapViewBundle: Bundle? = null
         if (savedInstanceState != null) {
             mapViewBundle = savedInstanceState.getBundle(MAP_VIEW_BUNDLE_KEY)

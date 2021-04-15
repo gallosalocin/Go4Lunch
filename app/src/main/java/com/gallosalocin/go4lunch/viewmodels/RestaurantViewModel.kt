@@ -9,57 +9,41 @@ import com.gallosalocin.go4lunch.services.RestaurantApi
 import com.gallosalocin.go4lunch.services.dto.DetailsResponse
 import com.gallosalocin.go4lunch.services.dto.DetailsResult
 import com.gallosalocin.go4lunch.services.dto.RestaurantResponse
-import com.gallosalocin.go4lunch.util.Constants.BASE_URL
-import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
+import dagger.hilt.android.lifecycle.HiltViewModel
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import timber.log.Timber
+import javax.inject.Inject
 
-class RestaurantViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class RestaurantViewModel @Inject constructor(
+        application: Application,
+        private var restaurantApi: RestaurantApi
 
-    private var restaurantApi: RestaurantApi? = null
-    private var restaurantList: MutableLiveData<List<RestaurantResult>?>? = null
-    private var detailsResult: MutableLiveData<DetailsResult?>? = null
+) : AndroidViewModel(application) {
 
-    fun getRestaurants(currentLocation: String, radius: Int, type: String, key: String): LiveData<List<RestaurantResult>?> {
-        if (restaurantList == null) {
-            restaurantList = MutableLiveData()
-            loadRestaurants(currentLocation, radius, type, key)
-        }
-        return restaurantList as MutableLiveData<List<RestaurantResult>?>
+    private lateinit var restaurantList: MutableLiveData<List<RestaurantResult>>
+    private lateinit var detailsResult: MutableLiveData<DetailsResult>
+
+    fun getRestaurants(currentLocation: String, radius: Int, type: String, key: String): LiveData<List<RestaurantResult>> {
+        restaurantList = MutableLiveData()
+        loadRestaurants(currentLocation, radius, type, key)
+        return restaurantList
     }
 
     fun getDetailsRestaurant(placeId: String, key: String): LiveData<DetailsResult?> {
         detailsResult = MutableLiveData()
         loadDetailsRestaurant(placeId, key)
-        return detailsResult as MutableLiveData<DetailsResult?>
-    }
-
-    private fun setupRestaurantApi() {
-        val loggingInterceptor = HttpLoggingInterceptor()
-        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY)
-        val okHttpClient = OkHttpClient().newBuilder()
-                .addInterceptor(loggingInterceptor)
-                .build()
-        val retrofit: Retrofit = Retrofit.Builder()
-                .baseUrl(BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create())
-                .client(okHttpClient)
-                .build()
-        restaurantApi = retrofit.create(RestaurantApi::class.java)
+        return detailsResult
     }
 
     private fun loadRestaurants(currentLocation: String, radius: Int, type: String, key: String) {
-        setupRestaurantApi()
-        val restaurantResponseCall = restaurantApi!!.getNearbyRestaurant(currentLocation, radius, type, key)
-        restaurantResponseCall!!.enqueue(object : Callback<RestaurantResponse?> {
+        val restaurantResponseCall = restaurantApi.getNearbyRestaurant(currentLocation, radius, type, key)
+        restaurantResponseCall.enqueue(object : Callback<RestaurantResponse?> {
             override fun onResponse(call: Call<RestaurantResponse?>, response: Response<RestaurantResponse?>) {
                 if (response.body() != null) {
-                    restaurantList!!.value = response.body()!!.restaurantResults
+                    restaurantList.value = response.body()!!.restaurantResults
                 }
             }
 
@@ -68,12 +52,11 @@ class RestaurantViewModel(application: Application) : AndroidViewModel(applicati
     }
 
     private fun loadDetailsRestaurant(placeId: String, key: String) {
-        setupRestaurantApi()
-        val detailsResponseCall = restaurantApi!!.getDetailsRestaurant(placeId, key)
-        detailsResponseCall!!.enqueue(object : Callback<DetailsResponse?> {
+        val detailsResponseCall = restaurantApi.getDetailsRestaurant(placeId, key)
+        detailsResponseCall.enqueue(object : Callback<DetailsResponse?> {
             override fun onResponse(call: Call<DetailsResponse?>, response: Response<DetailsResponse?>) {
                 if (response.body() != null) {
-                    detailsResult!!.value = response.body()!!.detailsResult
+                    detailsResult.value = response.body()!!.detailsResult
                 }
             }
 
@@ -82,4 +65,5 @@ class RestaurantViewModel(application: Application) : AndroidViewModel(applicati
             }
         })
     }
+
 }

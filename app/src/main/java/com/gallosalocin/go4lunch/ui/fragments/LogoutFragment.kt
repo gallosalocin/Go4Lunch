@@ -11,8 +11,10 @@ import com.gallosalocin.go4lunch.R
 import com.gallosalocin.go4lunch.databinding.FragmentLogoutBinding
 import com.gallosalocin.go4lunch.ui.MainActivity
 import com.google.android.gms.tasks.Task
+import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 
+@AndroidEntryPoint
 class LogoutFragment : Fragment(R.layout.fragment_logout) {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {

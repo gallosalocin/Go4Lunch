@@ -9,9 +9,11 @@ import android.os.Build
 import android.os.Bundle
 import com.gallosalocin.go4lunch.util.Constants.CHANNEL_MY_LUNCH_NOTIFICATION_ID
 import com.google.android.libraries.places.api.Places
+import dagger.hilt.android.HiltAndroidApp
 import timber.log.Timber
 import timber.log.Timber.DebugTree
 
+@HiltAndroidApp
 class MyApp : Application() {
 
     override fun onCreate() {

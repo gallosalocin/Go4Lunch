@@ -11,6 +11,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.firebase.ui.firestore.FirestoreRecyclerOptions
@@ -26,21 +27,24 @@ import com.gallosalocin.go4lunch.viewmodels.RestaurantViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.*
 import com.squareup.picasso.Picasso
+import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 import java.util.*
 
+@AndroidEntryPoint
 class DetailsFragment : Fragment(R.layout.fragment_details) {
 
     private var _binding: FragmentDetailsBinding? = null
     private val binding get() = _binding!!
-    
+
+    private val restaurantViewModel: RestaurantViewModel by viewModels()
+
     private var workmateListener: ListenerRegistration? = null
     private val mAuth = FirebaseAuth.getInstance()
     private val db = FirebaseFirestore.getInstance()
     private val workmatesCollectionRef = db.collection(Constants.WORKMATES_COLLECTION)
     private var currentWorkmate: Workmate? = null
     private var mAdapter: WorkmateAdapter? = null
-    private var restaurantViewModel: RestaurantViewModel? = null
     private var restaurantResult: RestaurantResult? = null
     private lateinit var placeId: String
     private var args: DetailsFragmentArgs? = null
@@ -51,7 +55,6 @@ class DetailsFragment : Fragment(R.layout.fragment_details) {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentDetailsBinding.inflate(inflater, container, false)
-        restaurantViewModel = ViewModelProvider(this).get(RestaurantViewModel::class.java)
         return binding.root
     }
 
@@ -119,16 +122,20 @@ class DetailsFragment : Fragment(R.layout.fragment_details) {
     private fun saveRestaurantForLunch(placeId: String?, name: String?) {
         isRestaurantCheck = if (isRestaurantCheck) {
             Objects.requireNonNull(mAuth.uid)?.let {
-                workmatesCollectionRef.document(it).update(Constants.CHOSEN_RESTAURANT_ID_FIELD, "") }
+                workmatesCollectionRef.document(it).update(Constants.CHOSEN_RESTAURANT_ID_FIELD, "")
+            }
             Objects.requireNonNull(mAuth.uid)?.let {
-                workmatesCollectionRef.document(it).update(Constants.CHOSEN_RESTAURANT_NAME_FIELD, "") }
+                workmatesCollectionRef.document(it).update(Constants.CHOSEN_RESTAURANT_NAME_FIELD, "")
+            }
             binding.fabDetailsChoice.setImageResource(R.drawable.ic_check_empty)
             false
         } else {
             Objects.requireNonNull(mAuth.uid)?.let {
-                workmatesCollectionRef.document(it).update(Constants.CHOSEN_RESTAURANT_ID_FIELD, placeId) }
+                workmatesCollectionRef.document(it).update(Constants.CHOSEN_RESTAURANT_ID_FIELD, placeId)
+            }
             Objects.requireNonNull(mAuth.uid)?.let {
-                workmatesCollectionRef.document(it).update(Constants.CHOSEN_RESTAURANT_NAME_FIELD, name) }
+                workmatesCollectionRef.document(it).update(Constants.CHOSEN_RESTAURANT_NAME_FIELD, name)
+            }
             binding.fabDetailsChoice.setImageResource(R.drawable.ic_check_ok)
             true
         }
@@ -161,12 +168,14 @@ class DetailsFragment : Fragment(R.layout.fragment_details) {
                 binding.btnDetailsLike.setOnClickListener {
                     isFavoriteCheck = if (isFavoriteCheck) {
                         Objects.requireNonNull(mAuth.uid)?.let {
-                            workmatesCollectionRef.document(it).update(Constants.FAVORITE_FIELD, FieldValue.arrayRemove(placeId)) }
+                            workmatesCollectionRef.document(it).update(Constants.FAVORITE_FIELD, FieldValue.arrayRemove(placeId))
+                        }
                         binding.btnDetailsLike.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_like_red, 0, 0)
                         false
                     } else {
                         Objects.requireNonNull(mAuth.uid)?.let {
-                            workmatesCollectionRef.document(it).update(Constants.FAVORITE_FIELD, FieldValue.arrayUnion(placeId)) }
+                            workmatesCollectionRef.document(it).update(Constants.FAVORITE_FIELD, FieldValue.arrayUnion(placeId))
+                        }
                         binding.btnDetailsLike.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_like_yellow, 0, 0)
                         true
                     }
@@ -231,8 +240,7 @@ class DetailsFragment : Fragment(R.layout.fragment_details) {
     }
 
     private fun retrieveWorkmatesForLunch(placeId: String?) {
-        workmatesCollectionRef.whereEqualTo(Constants.CHOSEN_RESTAURANT_ID_FIELD, placeId).addSnapshotListener {
-            queryDocumentSnapshots: QuerySnapshot?, error: FirebaseFirestoreException? ->
+        workmatesCollectionRef.whereEqualTo(Constants.CHOSEN_RESTAURANT_ID_FIELD, placeId).addSnapshotListener { queryDocumentSnapshots: QuerySnapshot?, error: FirebaseFirestoreException? ->
             Timber.d("retrieveWorkmatesForLunch")
             if (error != null) {
                 return@addSnapshotListener
@@ -253,29 +261,29 @@ class DetailsFragment : Fragment(R.layout.fragment_details) {
     private fun setupDocumentSnapshot() {
         workmateListener = Objects.requireNonNull(mAuth.uid)?.let {
             workmatesCollectionRef.document(it).addSnapshotListener { documentSnapshot: DocumentSnapshot?, error: FirebaseFirestoreException? ->
-            Timber.d("setupDocumentSnapshot")
-            if (error != null) {
-                Timber.d(error.toString())
-                return@addSnapshotListener
-            }
-            if (documentSnapshot!!.exists()) {
-                currentWorkmate = documentSnapshot.toObject(Workmate::class.java)
-                when (fragmentChoice) {
-                    1 -> {
-                        restaurantIsForLunch(placeId)
-                        restaurantIsFavorite(placeId)
-                        retrieveWorkmatesForLunch(placeId)
-                    }
-                    2 -> {
-                        restaurantIsForLunch(restaurantResult!!.placeId)
-                        restaurantIsFavorite(restaurantResult!!.placeId)
-                        retrieveWorkmatesForLunch(restaurantResult!!.placeId)
-                    }
-                    else -> {
+                Timber.d("setupDocumentSnapshot")
+                if (error != null) {
+                    Timber.d(error.toString())
+                    return@addSnapshotListener
+                }
+                if (documentSnapshot!!.exists()) {
+                    currentWorkmate = documentSnapshot.toObject(Workmate::class.java)
+                    when (fragmentChoice) {
+                        1 -> {
+                            restaurantIsForLunch(placeId)
+                            restaurantIsFavorite(placeId)
+                            retrieveWorkmatesForLunch(placeId)
+                        }
+                        2 -> {
+                            restaurantIsForLunch(restaurantResult!!.placeId)
+                            restaurantIsFavorite(restaurantResult!!.placeId)
+                            retrieveWorkmatesForLunch(restaurantResult!!.placeId)
+                        }
+                        else -> {
+                        }
                     }
                 }
             }
-        }
         }
     }
 
