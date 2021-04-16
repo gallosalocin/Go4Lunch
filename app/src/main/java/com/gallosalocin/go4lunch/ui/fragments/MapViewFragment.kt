@@ -19,7 +19,6 @@ import androidx.appcompat.widget.AppCompatAutoCompleteTextView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.preference.PreferenceManager
@@ -27,7 +26,6 @@ import com.gallosalocin.go4lunch.BuildConfig
 import com.gallosalocin.go4lunch.R
 import com.gallosalocin.go4lunch.adapters.PlaceAutoCompleteAdapter
 import com.gallosalocin.go4lunch.databinding.FragmentMapViewBinding
-import com.gallosalocin.go4lunch.models.RestaurantResult
 import com.gallosalocin.go4lunch.models.Workmate
 import com.gallosalocin.go4lunch.util.Constants.LOCATION_PERMISSION_REQUEST_CODE
 import com.gallosalocin.go4lunch.util.Constants.MAP_VIEW_BUNDLE_KEY
@@ -69,18 +67,18 @@ class MapViewFragment : Fragment(R.layout.fragment_map_view), OnMapReadyCallback
     private val workmatesCollectionRef = db.collection(WORKMATES_COLLECTION)
     private var workmateListener: ListenerRegistration? = null
     private lateinit var chosenRestaurants: MutableList<String>
-    private var mMap: GoogleMap? = null
+    private lateinit var mMap: GoogleMap
     private var defaultZoom = 0f
     private var latitude = 0.0
     private var longitude = 0.0
-    private var radius: String? = null
-    private var currentLatLng: LatLng? = null
-    private var currentLocation: String? = null
-    private var navController: NavController? = null
-    private var workmate: Workmate? = null
-    private var markerOptions: MarkerOptions? = null
-    private var placesClient: PlacesClient? = null
-    private var placeAutocompleteAdapter: PlaceAutoCompleteAdapter? = null
+    private lateinit var radius: String
+    private lateinit var currentLatLng: LatLng
+    private lateinit var currentLocation: String
+    private lateinit var navController: NavController
+    private lateinit var workmate: Workmate
+    private lateinit var markerOptions: MarkerOptions
+    private lateinit var placesClient: PlacesClient
+    private lateinit var placeAutocompleteAdapter: PlaceAutoCompleteAdapter
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentMapViewBinding.inflate(inflater, container, false)
@@ -95,10 +93,10 @@ class MapViewFragment : Fragment(R.layout.fragment_map_view), OnMapReadyCallback
         }
         val autocompleteSessionToken = AutocompleteSessionToken.newInstance()
         placesClient = Places.createClient(requireContext())
-        placeAutocompleteAdapter = PlaceAutoCompleteAdapter(requireContext(), placesClient!!, autocompleteSessionToken)
+        placeAutocompleteAdapter = PlaceAutoCompleteAdapter(requireContext(), placesClient, autocompleteSessionToken)
         val sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
         defaultZoom = sharedPreferences.getInt("key_pref_zoom", 18).toFloat()
-        radius = sharedPreferences.getString("key_pref_radius_2", "500")
+        radius = sharedPreferences.getString("key_pref_radius_2", "500").toString()
 
         navController = Navigation.findNavController(view)
         var mapViewBundle: Bundle? = null
@@ -156,13 +154,13 @@ class MapViewFragment : Fragment(R.layout.fragment_map_view), OnMapReadyCallback
         mMap = map
         if (mAuth != null) {
             Timber.d("onMapReady after verification")
-            mMap!!.isMyLocationEnabled = true
-            mMap!!.uiSettings.isMyLocationButtonEnabled = false
+            mMap.isMyLocationEnabled = true
+            mMap.uiSettings.isMyLocationButtonEnabled = false
             getDeviceLocation()
-            mMap!!.setOnMarkerClickListener { marker: Marker ->
+            mMap.setOnMarkerClickListener { marker: Marker ->
                 val markerPlaceId = marker.title
                 val action = MapViewFragmentDirections.actionMapViewFragmentToDetailsFragment(null, markerPlaceId)
-                navController!!.navigate(action)
+                navController.navigate(action)
                 false
             }
         }
@@ -183,7 +181,7 @@ class MapViewFragment : Fragment(R.layout.fragment_map_view), OnMapReadyCallback
                     currentLocation = "$latitude, $longitude"
                     val cameraUpdate = CameraUpdateFactory.newLatLngZoom(currentLatLng, defaultZoom)
                     getAllRestaurants()
-                    mMap!!.moveCamera(cameraUpdate)
+                    mMap.moveCamera(cameraUpdate)
                 }
             }
         } catch (e: SecurityException) {
@@ -194,25 +192,25 @@ class MapViewFragment : Fragment(R.layout.fragment_map_view), OnMapReadyCallback
     // Get nearby restaurants from api
     private fun getAllRestaurants() {
         val type = "restaurant"
-        restaurantViewModel!!.getRestaurants(currentLocation!!, radius!!.toInt(), type, BuildConfig.ApiKey).observe(viewLifecycleOwner,
-                { restaurants: List<RestaurantResult>? ->
-                    for (i in restaurants!!.indices) {
+        restaurantViewModel.getNearbyRestaurantList(currentLocation, radius.toInt(), type, BuildConfig.ApiKey)
+                .observe(viewLifecycleOwner) { restaurants ->
+                    for (i in restaurants.indices) {
                         val latLng = LatLng(restaurants[i].geometry!!.location!!.lat.toDouble(),
                                 restaurants[i].geometry!!.location!!.lng.toDouble())
                         markerOptions = MarkerOptions()
-                        markerOptions!!.position(latLng)
-                        markerOptions!!.title(restaurants[i].placeId)
+                        markerOptions.position(latLng)
+                        markerOptions.title(restaurants[i].placeId)
                         for (j in chosenRestaurants.indices) {
                             if (restaurants[i].placeId == chosenRestaurants[j]) {
-                                markerOptions!!.icon(bitmapDescriptorFromVector(R.drawable.ic_pin_restaurant_green))
+                                markerOptions.icon(bitmapDescriptorFromVector(R.drawable.ic_pin_restaurant_green))
                                 break
                             } else {
-                                markerOptions!!.icon(bitmapDescriptorFromVector(R.drawable.ic_pin_restaurant_orange))
+                                markerOptions.icon(bitmapDescriptorFromVector(R.drawable.ic_pin_restaurant_orange))
                             }
                         }
-                        mMap!!.addMarker(markerOptions)
+                        mMap.addMarker(markerOptions)
                     }
-                })
+                }
     }
 
     // Bitmap Descriptor
@@ -261,8 +259,8 @@ class MapViewFragment : Fragment(R.layout.fragment_map_view), OnMapReadyCallback
             for (queryDocumentSnapshot in queryDocumentSnapshots!!) {
                 if (mAuth != null) {
                     workmate = queryDocumentSnapshot.toObject(Workmate::class.java)
-                    if (workmate!!.chosenRestaurantId!!.isNotEmpty()) {
-                        workmate!!.chosenRestaurantId?.let { chosenRestaurants.add(it) }
+                    if (workmate.chosenRestaurantId!!.isNotEmpty()) {
+                        workmate.chosenRestaurantId?.let { chosenRestaurants.add(it) }
                     } else {
                         chosenRestaurants.add("")
                     }
@@ -299,27 +297,27 @@ class MapViewFragment : Fragment(R.layout.fragment_map_view), OnMapReadyCallback
     // Setup click event on AutoCompleteTextView
     private val autoCompleteClickListener = AdapterView.OnItemClickListener { _: AdapterView<*>?, _: View?, i: Int, _: Long ->
         try {
-            val item = placeAutocompleteAdapter!!.getItem(i)
+            val item = placeAutocompleteAdapter.getItem(i)
             val placeId: String?
             placeId = item.placeId
             val placeFields = listOf(Place.Field.ID, Place.Field.LAT_LNG, Place.Field.NAME)
             val request: FetchPlaceRequest?
             request = FetchPlaceRequest.builder(placeId, placeFields).build()
-            placesClient!!.fetchPlace(request).addOnSuccessListener { fetchPlaceResponse: FetchPlaceResponse ->
+            placesClient.fetchPlace(request).addOnSuccessListener { fetchPlaceResponse: FetchPlaceResponse ->
                 val cameraUpdate = CameraUpdateFactory.newLatLngZoom(fetchPlaceResponse.place.latLng, defaultZoom)
                 markerOptions = MarkerOptions()
-                markerOptions!!.position(Objects.requireNonNull(fetchPlaceResponse.place.latLng)!!)
-                markerOptions!!.title(fetchPlaceResponse.place.id)
+                markerOptions.position(Objects.requireNonNull(fetchPlaceResponse.place.latLng)!!)
+                markerOptions.title(fetchPlaceResponse.place.id)
                 for (j in chosenRestaurants.indices) {
                     if (fetchPlaceResponse.place.id == chosenRestaurants[j]) {
-                        markerOptions!!.icon(bitmapDescriptorFromVector(R.drawable.ic_pin_restaurant_green))
+                        markerOptions.icon(bitmapDescriptorFromVector(R.drawable.ic_pin_restaurant_green))
                         break
                     } else {
-                        markerOptions!!.icon(bitmapDescriptorFromVector(R.drawable.ic_pin_restaurant_orange))
+                        markerOptions.icon(bitmapDescriptorFromVector(R.drawable.ic_pin_restaurant_orange))
                     }
                 }
-                mMap!!.addMarker(markerOptions)
-                mMap!!.moveCamera(cameraUpdate)
+                mMap.addMarker(markerOptions)
+                mMap.moveCamera(cameraUpdate)
                 Timber.d("New Place Clicked : %s, %s", fetchPlaceResponse.place.name, fetchPlaceResponse.place.latLng)
             }.addOnFailureListener { obj: Exception -> obj.printStackTrace() }
         } catch (e: Exception) {

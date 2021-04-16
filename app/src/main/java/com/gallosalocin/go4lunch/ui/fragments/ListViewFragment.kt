@@ -11,7 +11,6 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.widget.AppCompatAutoCompleteTextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.preference.PreferenceManager
@@ -55,19 +54,19 @@ class ListViewFragment : Fragment(R.layout.fragment_list_view) {
     private lateinit var chosenRestaurantsList: MutableList<String>
     private lateinit var restaurantResultList: MutableList<RestaurantResult>
     private lateinit var restaurantResultPredictionsList: MutableList<RestaurantResult>
+    private lateinit var placesClient: PlacesClient
+    private lateinit var predictionsPlaceIdList: MutableList<String>
+
     private var workmate: Workmate? = null
     private lateinit var restaurantAdapter: RestaurantAdapter
     private lateinit var radius: String
     private var latitude = 0.0
     private var longitude = 0.0
     private lateinit var currentLocation: String
-
     private var stateName = true
     private var stateDistance = true
     private var stateRating = true
     private var stateWorkmates = true
-    private lateinit var placesClient: PlacesClient
-    private lateinit var predictionsPlaceIdList: MutableList<String>
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentListViewBinding.inflate(inflater, container, false)
@@ -257,29 +256,29 @@ class ListViewFragment : Fragment(R.layout.fragment_list_view) {
     // Get nearby restaurants from api
     private fun getAllRestaurants() {
         val type = "restaurant"
-        restaurantViewModel.getRestaurants(currentLocation, radius.toInt(), type, BuildConfig.ApiKey).observe(viewLifecycleOwner) {
-            restaurants: List<RestaurantResult> ->
-            val currentLocation = Location("")
-            currentLocation.latitude = latitude
-            currentLocation.longitude = longitude
-            for (i in restaurants.indices) {
-                val occurrences = Collections.frequency(chosenRestaurantsList, restaurants[i].placeId)
-                val restaurantLocation = Location("")
-                restaurantLocation.latitude = restaurants[i].geometry!!.location!!.lat.toDouble()
-                restaurantLocation.longitude = restaurants[i].geometry!!.location!!.lng.toDouble()
-                restaurantResultList.add(RestaurantResult(
-                        name = restaurants[i].name,
-                        restaurantOpeningHours = restaurants[i].restaurantOpeningHours,
-                        address = restaurants[i].address,
-                        placeId = restaurants[i].placeId,
-                        restaurantPhotos = restaurants[i].restaurantPhotos,
-                        rating = restaurants[i].rating * 3 / 5,
-                        workmates = occurrences.toFloat(),
-                        distance = currentLocation.distanceTo(restaurantLocation).toInt()))
-            }
-            val restaurantResultListFiltered = restaurantResultList.sortedBy { it.distance }
-            restaurantAdapter.submitList(restaurantResultListFiltered)
-        }
+        restaurantViewModel.getNearbyRestaurantList(currentLocation, radius.toInt(), type, BuildConfig.ApiKey)
+                .observe(viewLifecycleOwner) { restaurants ->
+                    val currentLocation = Location("")
+                    currentLocation.latitude = latitude
+                    currentLocation.longitude = longitude
+                    for (i in restaurants.indices) {
+                        val occurrences = Collections.frequency(chosenRestaurantsList, restaurants[i].placeId)
+                        val restaurantLocation = Location("")
+                        restaurantLocation.latitude = restaurants[i].geometry!!.location!!.lat.toDouble()
+                        restaurantLocation.longitude = restaurants[i].geometry!!.location!!.lng.toDouble()
+                        restaurantResultList.add(RestaurantResult(
+                                name = restaurants[i].name,
+                                restaurantOpeningHours = restaurants[i].restaurantOpeningHours,
+                                address = restaurants[i].address,
+                                placeId = restaurants[i].placeId,
+                                restaurantPhotos = restaurants[i].restaurantPhotos,
+                                rating = restaurants[i].rating * 3 / 5,
+                                workmates = occurrences.toFloat(),
+                                distance = currentLocation.distanceTo(restaurantLocation).toInt()))
+                    }
+                    val restaurantResultListFiltered = restaurantResultList.sortedBy { it.distance }
+                    restaurantAdapter.submitList(restaurantResultListFiltered)
+                }
     }
 
     @SuppressLint("MissingPermission")
