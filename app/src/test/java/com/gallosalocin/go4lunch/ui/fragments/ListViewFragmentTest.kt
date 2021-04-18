@@ -1,89 +1,74 @@
-package com.gallosalocin.go4lunch.ui.fragments;
+package com.gallosalocin.go4lunch.ui.fragments
 
-import com.gallosalocin.go4lunch.models.RestaurantResult;
+import com.gallosalocin.go4lunch.models.RestaurantResult
+import com.google.common.truth.Truth.assertThat
+import org.junit.Before
+import org.junit.Test
+import java.util.*
 
-import org.junit.Before;
-import org.junit.Test;
+class ListViewFragmentTest {
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
-import static com.google.common.truth.Truth.assertThat;
-import static java.util.Comparator.comparing;
-import static java.util.Comparator.comparingInt;
-
-public class ListViewFragmentTest {
-
-    private RestaurantResult restaurantResultTest;
-    private List<RestaurantResult> restaurantResultList;
+    private lateinit var restaurantResultTest: RestaurantResult
+    private lateinit var restaurantResultList: MutableList<RestaurantResult>
 
     @Before
-    public void setUp() {
-        restaurantResultTest = new RestaurantResult();
-
-        restaurantResultList = new ArrayList<>();
-        restaurantResultList.add(new RestaurantResult("name 1", 2f, 3, 4));
-        restaurantResultList.add(new RestaurantResult("name 2", 3f, 4, 1));
-        restaurantResultList.add(new RestaurantResult("name 3", 4f, 1, 2));
-        restaurantResultList.add(new RestaurantResult("name 4", 1f, 2, 3));
+    fun setUp() {
+        restaurantResultTest = RestaurantResult()
+        restaurantResultList = ArrayList()
+        restaurantResultList.add(RestaurantResult(name = "name 1", rating = 2f, workmates = 3F, distance = 4))
+        restaurantResultList.add(RestaurantResult(name = "name 2", rating = 3f, workmates = 4F, distance = 1))
+        restaurantResultList.add(RestaurantResult(name = "name 3", rating = 4f, workmates = 1F, distance = 2))
+        restaurantResultList.add(RestaurantResult(name = "name 4", rating = 1f, workmates = 2F, distance = 3))
     }
 
     @Test
-    public void calculateRating_Success() {
-        restaurantResultTest.setRating(5f);
-        float result = restaurantResultTest.getRating() * 3 / 5;
-        assertThat(result).isEqualTo(3);
+    fun calculateRating_Success() {
+        restaurantResultTest.rating = 5f
+        val result = restaurantResultTest.rating * 3 / 5
+        assertThat(result).isEqualTo(3)
     }
 
     @Test
-    public void calculateOccurences_Success() {
-        restaurantResultTest.setPlaceId("placeId1 test");
-        List<String> resultPlaceIdList = Arrays.asList("placeId1 test", "placeId1 test", "placeId2 test");
-        int result = Collections.frequency(resultPlaceIdList, restaurantResultTest.getPlaceId());
-        assertThat(result).isEqualTo(2);
+    fun calculateOccurences_Success() {
+        restaurantResultTest.placeId = "placeId1 test"
+        val resultPlaceIdList = listOf("placeId1 test", "placeId1 test", "placeId2 test")
+        val result = Collections.frequency(resultPlaceIdList, restaurantResultTest.placeId)
+        assertThat(result).isEqualTo(2)
     }
 
     @Test
-    public void sortListByName_AToZ_Success() {
-        restaurantResultList.sort(comparing(RestaurantResult::getName));
-
-        assertThat(restaurantResultList.get(0).getName()).isEqualTo("name 1");
-        assertThat(restaurantResultList.get(1).getName()).isEqualTo("name 2");
-        assertThat(restaurantResultList.get(2).getName()).isEqualTo("name 3");
-        assertThat(restaurantResultList.get(3).getName()).isEqualTo("name 4");
+    fun sortListByName_AToZ_Success() {
+        val restaurantFiltered = restaurantResultList.sortedBy { it.name?.toLowerCase() }
+        assertThat(restaurantFiltered[0].name).isEqualTo("name 1")
+        assertThat(restaurantFiltered[1].name).isEqualTo("name 2")
+        assertThat(restaurantFiltered[2].name).isEqualTo("name 3")
+        assertThat(restaurantFiltered[3].name).isEqualTo("name 4")
     }
 
     @Test
-    public void sortListByRating_BiggerToLower_Success() {
-        restaurantResultList.sort(Comparator.comparing(RestaurantResult::getRating).reversed());
-
-        assertThat(restaurantResultList.get(0).getRating()).isEqualTo(4f);
-        assertThat(restaurantResultList.get(1).getRating()).isEqualTo(3f);
-        assertThat(restaurantResultList.get(2).getRating()).isEqualTo(2f);
-        assertThat(restaurantResultList.get(3).getRating()).isEqualTo(1f);
+    fun sortListByRating_BiggerToLower_Success() {
+        val restaurantFiltered = restaurantResultList.sortedBy { it.rating }.reversed()
+        assertThat(restaurantFiltered[0].rating).isEqualTo(4f)
+        assertThat(restaurantFiltered[1].rating).isEqualTo(3f)
+        assertThat(restaurantFiltered[2].rating).isEqualTo(2f)
+        assertThat(restaurantFiltered[3].rating).isEqualTo(1f)
     }
 
     @Test
-    public void sortListByNumberOfWorkmates_BiggerToLower_Success() {
-        restaurantResultList.sort(comparingInt(RestaurantResult::getWorkmates).reversed());
-
-        assertThat(restaurantResultList.get(0).getWorkmates()).isEqualTo(4);
-        assertThat(restaurantResultList.get(1).getWorkmates()).isEqualTo(3);
-        assertThat(restaurantResultList.get(2).getWorkmates()).isEqualTo(2);
-        assertThat(restaurantResultList.get(3).getWorkmates()).isEqualTo(1);
+    fun sortListByNumberOfWorkmates_BiggerToLower_Success() {
+        val restaurantFiltered = restaurantResultList.sortedBy { it.workmates }.reversed()
+        assertThat(restaurantFiltered[0].workmates).isEqualTo(4)
+        assertThat(restaurantFiltered[1].workmates).isEqualTo(3)
+        assertThat(restaurantFiltered[2].workmates).isEqualTo(2)
+        assertThat(restaurantFiltered[3].workmates).isEqualTo(1)
     }
 
     @Test
-    public void sortListByDistance_NearestToFarthest_Success() {
-        restaurantResultList.sort(comparing(RestaurantResult::getDistance));
-
-        assertThat(restaurantResultList.get(0).getDistance()).isEqualTo(1);
-        assertThat(restaurantResultList.get(1).getDistance()).isEqualTo(2);
-        assertThat(restaurantResultList.get(2).getDistance()).isEqualTo(3);
-        assertThat(restaurantResultList.get(3).getDistance()).isEqualTo(4);
+    fun sortListByDistance_NearestToFarthest_Success() {
+        val restaurantFiltered = restaurantResultList.sortedBy { it.distance }
+        assertThat(restaurantFiltered[0].distance).isEqualTo(1)
+        assertThat(restaurantFiltered[1].distance).isEqualTo(2)
+        assertThat(restaurantFiltered[2].distance).isEqualTo(3)
+        assertThat(restaurantFiltered[3].distance).isEqualTo(4)
     }
-
 }

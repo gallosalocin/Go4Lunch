@@ -254,7 +254,7 @@ class ListViewFragment : Fragment(R.layout.fragment_list_view) {
     }
 
     // Get nearby restaurants from api
-    private fun getAllRestaurants() {
+    private fun getNearbyRestaurants() {
         val type = "restaurant"
         restaurantViewModel.getNearbyRestaurantList(currentLocation, radius.toInt(), type, BuildConfig.ApiKey)
                 .observe(viewLifecycleOwner) { restaurants ->
@@ -293,7 +293,7 @@ class ListViewFragment : Fragment(R.layout.fragment_list_view) {
                     latitude = location!!.latitude
                     longitude = location.longitude
                     currentLocation = "$latitude, $longitude"
-                    getAllRestaurants()
+                    getNearbyRestaurants()
                 }
             }
         } catch (e: SecurityException) {

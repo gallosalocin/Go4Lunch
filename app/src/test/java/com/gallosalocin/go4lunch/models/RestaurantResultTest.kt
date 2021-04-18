@@ -1,64 +1,63 @@
-package com.gallosalocin.go4lunch.models;
+package com.gallosalocin.go4lunch.models
 
-import org.junit.Before;
-import org.junit.Test;
+import com.google.common.truth.Truth.assertThat
+import org.junit.Before
+import org.junit.Test
 
-import static com.google.common.truth.Truth.assertThat;
+class RestaurantResultTest {
 
-public class RestaurantResultTest {
-
-    private RestaurantResult restaurantResult;
+    private lateinit var restaurantResult: RestaurantResult
 
     @Before
-    public void setup() {
-        restaurantResult = new RestaurantResult();
+    fun setup() {
+        restaurantResult = RestaurantResult()
     }
 
     @Test
-    public void setName_GetName_ReturnSameName() {
-        String name = "test name";
-        restaurantResult.setName(name);
-        String result = restaurantResult.getName();
-        assertThat(name).isEqualTo(result);
+    fun setName_GetName_ReturnSameName() {
+        val name = "test name"
+        restaurantResult.name = name
+        val result = restaurantResult.name
+        assertThat(name).isEqualTo(result)
     }
 
     @Test
-    public void setAddress_GetAddress_ReturnSameAddress() {
-        String address = "test address";
-        restaurantResult.setAddress(address);
-        String result = restaurantResult.getAddress();
-        assertThat(address).isEqualTo(result);
+    fun setAddress_GetAddress_ReturnSameAddress() {
+        val address = "test address"
+        restaurantResult.address = address
+        val result = restaurantResult.address
+        assertThat(address).isEqualTo(result)
     }
 
     @Test
-    public void setPlaceId_GetPlaceId_ReturnSamePlaceId() {
-        String placeId = "test placeId";
-        restaurantResult.setPlaceId(placeId);
-        String result = restaurantResult.getPlaceId();
-        assertThat(placeId).isEqualTo(result);
+    fun setPlaceId_GetPlaceId_ReturnSamePlaceId() {
+        val placeId = "test placeId"
+        restaurantResult.placeId = placeId
+        val result = restaurantResult.placeId
+        assertThat(placeId).isEqualTo(result)
     }
 
     @Test
-    public void setRating_GetRating_ReturnSameRating() {
-        float rating = 123f;
-        restaurantResult.setRating(rating);
-        float result = restaurantResult.getRating();
-        assertThat(rating).isEqualTo(result);
+    fun setRating_GetRating_ReturnSameRating() {
+        val rating = 123f
+        restaurantResult.rating = rating
+        val result = restaurantResult.rating
+        assertThat(rating).isEqualTo(result)
     }
 
     @Test
-    public void setDistance_GetDistance_ReturnSameDistance() {
-        int distance = 123;
-        restaurantResult.setDistance(distance);
-        int result = restaurantResult.getDistance();
-        assertThat(distance).isEqualTo(result);
+    fun setDistance_GetDistance_ReturnSameDistance() {
+        val distance = 123
+        restaurantResult.distance = distance
+        val result = restaurantResult.distance
+        assertThat(distance).isEqualTo(result)
     }
 
     @Test
-    public void setWorkmates_GetWorkmates_ReturnSameWorkmates() {
-        int workmates = 123;
-        restaurantResult.setWorkmates(workmates);
-        int result = restaurantResult.getWorkmates();
-        assertThat(workmates).isEqualTo(result);
+    fun setWorkmates_GetWorkmates_ReturnSameWorkmates() {
+        val workmates = 123
+        restaurantResult.workmates = workmates.toFloat()
+        val result = restaurantResult.workmates.toInt()
+        assertThat(workmates).isEqualTo(result)
     }
 }

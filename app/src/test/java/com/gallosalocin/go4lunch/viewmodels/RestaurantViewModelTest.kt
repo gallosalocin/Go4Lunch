@@ -1,200 +1,193 @@
-package com.gallosalocin.go4lunch.viewmodels;
+package com.gallosalocin.go4lunch.viewmodels
 
-import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
+import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
+import com.gallosalocin.go4lunch.models.RestaurantResult
+import com.gallosalocin.go4lunch.services.dto.DetailsResult
+import com.google.common.truth.Truth.assertThat
+import org.junit.Before
+import org.junit.Rule
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.mockito.Mock
+import org.mockito.Mockito
+import org.mockito.junit.MockitoJUnitRunner
 
-import com.gallosalocin.go4lunch.models.RestaurantResult;
-import com.gallosalocin.go4lunch.services.dto.DetailsResult;
+@RunWith(MockitoJUnitRunner::class)
+class RestaurantViewModelTest {
 
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+    private val currentLocation = "current location test"
+    private val radius = 500
+    private val type = "type test"
+    private val key = "key test"
+    private val placeId = "placeId test"
+    private val liveDataResponseList = MutableLiveData<List<RestaurantResult>>()
+    private val restaurantResultList: MutableList<RestaurantResult> = mutableListOf()
+    private lateinit var restaurantResult: RestaurantResult
+    private lateinit var detailsResult: DetailsResult
+    private lateinit var detailsResultMutableLiveData: MutableLiveData<DetailsResult>
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static com.google.common.truth.Truth.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-@RunWith(MockitoJUnitRunner.class)
-public class RestaurantViewModelTest {
-
-    private final String currentLocation = "current location test";
-    private final int radius = 500;
-    private final String type = "type test";
-    private final String key = "key test";
-    private final String placeId = "placeId test";
-    private final MutableLiveData<List<RestaurantResult>> liveDataResponseList = new MutableLiveData<>();
-    private final List<RestaurantResult> restaurantResultList = new ArrayList<>();
-    private RestaurantResult restaurantResult;
-    private DetailsResult detailsResult;
-    private MutableLiveData<DetailsResult> detailsResultMutableLiveData;
-
-    @Rule
-    public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
+    @get:Rule
+    var instantTaskExecutorRule = InstantTaskExecutorRule()
 
     @Mock
-    RestaurantViewModel restaurantViewModelTest;
+    lateinit var restaurantViewModelTest: RestaurantViewModel
 
     @Before
-    public void setUp() {
-        restaurantViewModelTest = mock(RestaurantViewModel.class);
-
-        restaurantResult = new RestaurantResult("name test1", "address test1", 1f, 1, 100);
-
-        detailsResult = new DetailsResult("phoneNumber test", "name test", 5f, "address test", "website test");
-        detailsResultMutableLiveData = new MutableLiveData<>();
+    fun setUp() {
+        restaurantViewModelTest = Mockito.mock(RestaurantViewModel::class.java)
+        restaurantResult = RestaurantResult(
+                name = "name test1",
+                address = "address test1",
+                rating = 1F,
+                workmates = 1F,
+                distance = 100
+        )
+        detailsResult = DetailsResult(
+                formattedPhoneNumber = "phoneNumber test",
+                name = "name test",
+                rating = 5F,
+                address = "address test",
+                website = "website test"
+        )
+        detailsResultMutableLiveData = MutableLiveData()
     }
 
     @Test
-    public void callNearbySearchApi_RestaurantResponseSuccess_ReturnCorrectName() {
+    fun callNearbySearchApi_RestaurantResponseSuccess_ReturnCorrectName() {
         // Given
-        restaurantResultList.add(restaurantResult);
-        liveDataResponseList.setValue(restaurantResultList);
+        restaurantResultList.add(restaurantResult)
+        liveDataResponseList.value = restaurantResultList
         // When
-        when(restaurantViewModelTest.getRestaurants(currentLocation, radius, type, key)).thenReturn(liveDataResponseList);
+        Mockito.`when`(restaurantViewModelTest.getNearbyRestaurantList(currentLocation, radius, type, key)).thenReturn(liveDataResponseList)
         // Then
-        LiveData<List<RestaurantResult>> listLiveData = restaurantViewModelTest.getRestaurants(currentLocation, radius, type, key);
-        RestaurantResult firstRestaurantResultList = listLiveData.getValue().get(0);
-        RestaurantResult firstResponseList = liveDataResponseList.getValue().get(0);
-
-        assertThat(firstRestaurantResultList.getName()).isEqualTo(firstResponseList.getName());
+        val listLiveData: LiveData<List<RestaurantResult>> = restaurantViewModelTest.getNearbyRestaurantList(currentLocation, radius, type, key)
+        val (_, name) = listLiveData.value!![0]
+        val firstResponseList = liveDataResponseList.value!![0]
+        assertThat(name).isEqualTo(firstResponseList.name)
     }
 
     @Test
-    public void callNearbySearchApi_RestaurantResponseSuccess_ReturnCorrectAddress() {
+    fun callNearbySearchApi_RestaurantResponseSuccess_ReturnCorrectAddress() {
         // Given
-        restaurantResultList.add(restaurantResult);
-        liveDataResponseList.setValue(restaurantResultList);
+        restaurantResultList.add(restaurantResult)
+        liveDataResponseList.value = restaurantResultList
         // When
-        when(restaurantViewModelTest.getRestaurants(currentLocation, radius, type, key)).thenReturn(liveDataResponseList);
+        Mockito.`when`(restaurantViewModelTest.getNearbyRestaurantList(currentLocation, radius, type, key)).thenReturn(liveDataResponseList)
         // Then
-        LiveData<List<RestaurantResult>> listLiveData = restaurantViewModelTest.getRestaurants(currentLocation, radius, type, key);
-        RestaurantResult firstRestaurantResultList = listLiveData.getValue().get(0);
-        RestaurantResult firstResponseList = liveDataResponseList.getValue().get(0);
-
-        assertThat(firstRestaurantResultList.getAddress()).isEqualTo(firstResponseList.getAddress());
+        val listLiveData: LiveData<List<RestaurantResult>> = restaurantViewModelTest.getNearbyRestaurantList(currentLocation, radius, type, key)
+        val (_, _, _, address) = listLiveData.value!![0]
+        val firstResponseList = liveDataResponseList.value!![0]
+        assertThat(address).isEqualTo(firstResponseList.address)
     }
 
     @Test
-    public void callNearbySearchApi_RestaurantResponseSuccess_ReturnCorrectRating() {
+    fun callNearbySearchApi_RestaurantResponseSuccess_ReturnCorrectRating() {
         // Given
-        restaurantResultList.add(restaurantResult);
-        liveDataResponseList.setValue(restaurantResultList);
+        restaurantResultList.add(restaurantResult)
+        liveDataResponseList.value = restaurantResultList
         // When
-        when(restaurantViewModelTest.getRestaurants(currentLocation, radius, type, key)).thenReturn(liveDataResponseList);
+        Mockito.`when`(restaurantViewModelTest.getNearbyRestaurantList(currentLocation, radius, type, key)).thenReturn(liveDataResponseList)
         // Then
-        LiveData<List<RestaurantResult>> listLiveData = restaurantViewModelTest.getRestaurants(currentLocation, radius, type, key);
-        RestaurantResult firstRestaurantResultList = listLiveData.getValue().get(0);
-        RestaurantResult firstResponseList = liveDataResponseList.getValue().get(0);
-
-        assertThat(firstRestaurantResultList.getRating()).isEqualTo(firstResponseList.getRating());
+        val listLiveData: LiveData<List<RestaurantResult>> = restaurantViewModelTest.getNearbyRestaurantList(currentLocation, radius, type, key)
+        val (_, _, _, _, _, _, rating) = listLiveData.value!![0]
+        val firstResponseList = liveDataResponseList.value!![0]
+        assertThat(rating).isEqualTo(firstResponseList.rating)
     }
 
     @Test
-    public void callNearbySearchApi_RestaurantResponseSuccess_ReturnCorrectWorkmates() {
+    fun callNearbySearchApi_RestaurantResponseSuccess_ReturnCorrectWorkmates() {
         // Given
-        restaurantResultList.add(restaurantResult);
-        liveDataResponseList.setValue(restaurantResultList);
+        restaurantResultList.add(restaurantResult)
+        liveDataResponseList.value = restaurantResultList
         // When
-        when(restaurantViewModelTest.getRestaurants(currentLocation, radius, type, key)).thenReturn(liveDataResponseList);
+        Mockito.`when`(restaurantViewModelTest.getNearbyRestaurantList(currentLocation, radius, type, key)).thenReturn(liveDataResponseList)
         // Then
-        LiveData<List<RestaurantResult>> listLiveData = restaurantViewModelTest.getRestaurants(currentLocation, radius, type, key);
-        RestaurantResult firstRestaurantResultList = listLiveData.getValue().get(0);
-        RestaurantResult firstResponseList = liveDataResponseList.getValue().get(0);
-
-        assertThat(firstRestaurantResultList.getWorkmates()).isEqualTo(firstResponseList.getWorkmates());
+        val listLiveData: LiveData<List<RestaurantResult>> = restaurantViewModelTest.getNearbyRestaurantList(currentLocation, radius, type, key)
+        val (_, _, _, _, _, _, _, _, workmates) = listLiveData.value!![0]
+        val firstResponseList = liveDataResponseList.value!![0]
+        assertThat(workmates).isEqualTo(firstResponseList.workmates)
     }
 
     @Test
-    public void callNearbySearchApi_RestaurantResponseSuccess_ReturnCorrectDistance() {
+    fun callNearbySearchApi_RestaurantResponseSuccess_ReturnCorrectDistance() {
         // Given
-        restaurantResultList.add(restaurantResult);
-        liveDataResponseList.setValue(restaurantResultList);
+        restaurantResultList.add(restaurantResult)
+        liveDataResponseList.value = restaurantResultList
         // When
-        when(restaurantViewModelTest.getRestaurants(currentLocation, radius, type, key)).thenReturn(liveDataResponseList);
+        Mockito.`when`(restaurantViewModelTest.getNearbyRestaurantList(currentLocation, radius, type, key)).thenReturn(liveDataResponseList)
         // Then
-        LiveData<List<RestaurantResult>> listLiveData = restaurantViewModelTest.getRestaurants(currentLocation, radius, type, key);
-        RestaurantResult firstRestaurantResultList = listLiveData.getValue().get(0);
-        RestaurantResult firstResponseList = liveDataResponseList.getValue().get(0);
-
-        assertThat(firstRestaurantResultList.getDistance()).isEqualTo(firstResponseList.getDistance());
+        val listLiveData: LiveData<List<RestaurantResult>> = restaurantViewModelTest.getNearbyRestaurantList(currentLocation, radius, type, key)
+        val (_, _, _, _, _, _, _, distance) = listLiveData.value!![0]
+        val firstResponseList = liveDataResponseList.value!![0]
+        assertThat(distance).isEqualTo(firstResponseList.distance)
     }
 
     @Test
-    public void callNearbySearchApi_WithWrongKey_ReturnError() {
-        when(restaurantViewModelTest.getRestaurants(currentLocation, radius, type, "wrong key")).thenReturn(null);
-        assertThat(restaurantViewModelTest.getRestaurants(currentLocation, radius, type, "wrong key")).isNull();
+    fun callNearbySearchApi_WithWrongKey_ReturnError() {
+        Mockito.`when`(restaurantViewModelTest.getNearbyRestaurantList(currentLocation, radius, type, "wrong key")).thenReturn(null)
+        assertThat(restaurantViewModelTest.getNearbyRestaurantList(currentLocation, radius, type, "wrong key")).isNull()
     }
 
     @Test
-    public void callDetailsApi_DetailsRestaurantSuccess_ReturnCorrectPhoneNumber() {
+    fun callDetailsApi_DetailsRestaurantSuccess_ReturnCorrectPhoneNumber() {
         // Given
-        detailsResultMutableLiveData.setValue(detailsResult);
+        detailsResultMutableLiveData.value = detailsResult
         // When
-        when(restaurantViewModelTest.getDetailsRestaurant(placeId, key)).thenReturn(detailsResultMutableLiveData);
+        Mockito.`when`(restaurantViewModelTest.getDetailsRestaurant(placeId, key)).thenReturn(detailsResultMutableLiveData)
         // Then
-        LiveData<DetailsResult> liveData = restaurantViewModelTest.getDetailsRestaurant(placeId, key);
-
-        assertThat(liveData.getValue().getFormattedPhoneNumber()).isEqualTo(detailsResultMutableLiveData.getValue().getFormattedPhoneNumber());
+        val liveData = restaurantViewModelTest.getDetailsRestaurant(placeId, key)
+        assertThat(liveData.value!!.formattedPhoneNumber).isEqualTo(detailsResultMutableLiveData.value!!.formattedPhoneNumber)
     }
 
     @Test
-    public void callDetailsApi_DetailsRestaurantSuccess_ReturnCorrectName() {
+    fun callDetailsApi_DetailsRestaurantSuccess_ReturnCorrectName() {
         // Given
-        detailsResultMutableLiveData.setValue(detailsResult);
+        detailsResultMutableLiveData.value = detailsResult
         // When
-        when(restaurantViewModelTest.getDetailsRestaurant(placeId, key)).thenReturn(detailsResultMutableLiveData);
+        Mockito.`when`(restaurantViewModelTest.getDetailsRestaurant(placeId, key)).thenReturn(detailsResultMutableLiveData)
         // Then
-        LiveData<DetailsResult> liveData = restaurantViewModelTest.getDetailsRestaurant(placeId, key);
-
-        assertThat(liveData.getValue().getName()).isEqualTo(detailsResultMutableLiveData.getValue().getName());
+        val liveData = restaurantViewModelTest.getDetailsRestaurant(placeId, key)
+        assertThat(liveData.value!!.name).isEqualTo(detailsResultMutableLiveData.value!!.name)
     }
 
     @Test
-    public void callDetailsApi_DetailsRestaurantSuccess_ReturnCorrectRating() {
+    fun callDetailsApi_DetailsRestaurantSuccess_ReturnCorrectRating() {
         // Given
-        detailsResultMutableLiveData.setValue(detailsResult);
+        detailsResultMutableLiveData.value = detailsResult
         // When
-        when(restaurantViewModelTest.getDetailsRestaurant(placeId, key)).thenReturn(detailsResultMutableLiveData);
+        Mockito.`when`(restaurantViewModelTest.getDetailsRestaurant(placeId, key)).thenReturn(detailsResultMutableLiveData)
         // Then
-        LiveData<DetailsResult> liveData = restaurantViewModelTest.getDetailsRestaurant(placeId, key);
-
-        assertThat(liveData.getValue().getRating()).isEqualTo(detailsResultMutableLiveData.getValue().getRating());
+        val liveData = restaurantViewModelTest.getDetailsRestaurant(placeId, key)
+        assertThat(liveData.value!!.rating).isEqualTo(detailsResultMutableLiveData.value!!.rating)
     }
 
     @Test
-    public void callDetailsApi_DetailsRestaurantSuccess_ReturnCorrectAddress() {
+    fun callDetailsApi_DetailsRestaurantSuccess_ReturnCorrectAddress() {
         // Given
-        detailsResultMutableLiveData.setValue(detailsResult);
+        detailsResultMutableLiveData.value = detailsResult
         // When
-        when(restaurantViewModelTest.getDetailsRestaurant(placeId, key)).thenReturn(detailsResultMutableLiveData);
+        Mockito.`when`(restaurantViewModelTest.getDetailsRestaurant(placeId, key)).thenReturn(detailsResultMutableLiveData)
         // Then
-        LiveData<DetailsResult> liveData = restaurantViewModelTest.getDetailsRestaurant(placeId, key);
-
-        assertThat(liveData.getValue().getAddress()).isEqualTo(detailsResultMutableLiveData.getValue().getAddress());
+        val liveData = restaurantViewModelTest.getDetailsRestaurant(placeId, key)
+        assertThat(liveData.value!!.address).isEqualTo(detailsResultMutableLiveData.value!!.address)
     }
 
     @Test
-    public void callDetailsApi_DetailsRestaurantSuccess_ReturnCorrectWebsite() {
+    fun callDetailsApi_DetailsRestaurantSuccess_ReturnCorrectWebsite() {
         // Given
-        detailsResultMutableLiveData.setValue(detailsResult);
+        detailsResultMutableLiveData.value = detailsResult
         // When
-        when(restaurantViewModelTest.getDetailsRestaurant(placeId, key)).thenReturn(detailsResultMutableLiveData);
+        Mockito.`when`(restaurantViewModelTest.getDetailsRestaurant(placeId, key)).thenReturn(detailsResultMutableLiveData)
         // Then
-        LiveData<DetailsResult> liveData = restaurantViewModelTest.getDetailsRestaurant(placeId, key);
-
-        assertThat(liveData.getValue().getWebsite()).isEqualTo(detailsResultMutableLiveData.getValue().getWebsite());
+        val liveData = restaurantViewModelTest.getDetailsRestaurant(placeId, key)
+        assertThat(liveData.value!!.website).isEqualTo(detailsResultMutableLiveData.value!!.website)
     }
 
     @Test
-    public void callDetailsApi_WithWrongKey_ReturnError() {
-        when(restaurantViewModelTest.getDetailsRestaurant(placeId, "wrong key")).thenReturn(null);
-        assertThat(restaurantViewModelTest.getDetailsRestaurant(placeId, "wrong key")).isNull();
+    fun callDetailsApi_WithWrongKey_ReturnError() {
+        Mockito.`when`(restaurantViewModelTest.getDetailsRestaurant(placeId, "wrong key")).thenReturn(null)
+        assertThat(restaurantViewModelTest.getDetailsRestaurant(placeId, "wrong key")).isNull()
     }
 }

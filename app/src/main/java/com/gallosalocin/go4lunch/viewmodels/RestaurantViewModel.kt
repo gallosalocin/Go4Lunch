@@ -10,6 +10,7 @@ import com.gallosalocin.go4lunch.services.dto.DetailsResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.schedulers.Schedulers
+import timber.log.Timber
 import javax.inject.Inject
 
 @HiltViewModel
@@ -34,14 +35,26 @@ class RestaurantViewModel @Inject constructor(
         return detailsResult
     }
 
+//    private fun apiCallNearbyRestaurant(currentLocation: String, radius: Int, type: String, key: String) {
+//        restaurantApi.getNearbyRestaurant(currentLocation, radius, type, key)
+//                .map { throw RuntimeException() }
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe(
+//                        { value -> Timber.d("Test -> $value") },
+//                        { error -> Timber.d("Test -> $error") },
+//                )
+//    }
 
     private fun apiCallNearbyRestaurant(currentLocation: String, radius: Int, type: String, key: String) {
         restaurantApi.getNearbyRestaurant(currentLocation, radius, type, key)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe {
-                    restaurantList.postValue(it.restaurantResults)
-                }
+                .subscribe(
+                        { value -> restaurantList.postValue(value.restaurantResults) },
+                        { error -> Timber.e("$error") },
+                        { Timber.d("Completed") }
+                )
     }
 
     private fun apiCallDetailsRestaurant(placeId: String, key: String) {

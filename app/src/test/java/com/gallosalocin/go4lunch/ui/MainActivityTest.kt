@@ -1,52 +1,45 @@
-package com.gallosalocin.go4lunch.ui;
+package com.gallosalocin.go4lunch.ui
 
-import com.gallosalocin.go4lunch.models.Workmate;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentReference;
+import com.gallosalocin.go4lunch.models.Workmate
+import com.google.common.truth.Truth
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.firestore.DocumentReference
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
+import org.mockito.Mock
+import org.mockito.Mockito
+import org.mockito.junit.MockitoJUnitRunner
+import java.util.*
 
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
+@RunWith(MockitoJUnitRunner::class)
+class MainActivityTest {
 
-import java.util.ArrayList;
-import java.util.List;
-
-import static com.google.common.truth.Truth.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-
-@RunWith(MockitoJUnitRunner.class)
-public class MainActivityTest {
-
-    private List<String> like = new ArrayList<>();
+    private val like: List<String> = ArrayList()
 
     @Mock
-    FirebaseUser authTest;
+    lateinit var authTest: FirebaseUser
+
     @Mock
-    DocumentReference documentReferenceTest;
+    lateinit var documentReferenceTest: DocumentReference
 
     @Before
-    public void setUp() {
-        authTest = mock(FirebaseUser.class);
-        when(authTest.getUid()).thenReturn("uid test");
-        when(authTest.getDisplayName()).thenReturn("name test");
-
-        documentReferenceTest = mock(DocumentReference.class);
-        when(documentReferenceTest.getId()).thenReturn("uid test");
+    fun setUp() {
+        authTest = Mockito.mock(FirebaseUser::class.java)
+        Mockito.`when`(authTest.uid).thenReturn("uid test")
+        Mockito.`when`(authTest.displayName).thenReturn("name test")
+        documentReferenceTest = Mockito.mock(DocumentReference::class.java)
+        Mockito.`when`(documentReferenceTest.id).thenReturn("uid test")
     }
 
     @Test
-    public void authenticationName_WorkmateName_ReturnSameName() {
-        Workmate workmateTest = new Workmate(authTest.getDisplayName(), "photo test", "", "", like);
-        assertThat(authTest.getDisplayName()).isEqualTo(workmateTest.getName());
+    fun authenticationName_WorkmateName_ReturnSameName() {
+        val (name) = Workmate(authTest.displayName, "photo test", "", "", like)
+        Truth.assertThat(authTest.displayName).isEqualTo(name)
     }
 
     @Test
-    public void authenticationUid_DocumentReference_ReturnSameId() {
-        assertThat(authTest.getUid()).isEqualTo(documentReferenceTest.getId());
+    fun authenticationUid_DocumentReference_ReturnSameId() {
+        Truth.assertThat(authTest.uid).isEqualTo(documentReferenceTest.id)
     }
 }
