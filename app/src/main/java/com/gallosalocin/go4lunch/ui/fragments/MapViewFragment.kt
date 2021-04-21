@@ -26,6 +26,7 @@ import com.gallosalocin.go4lunch.BuildConfig
 import com.gallosalocin.go4lunch.R
 import com.gallosalocin.go4lunch.adapters.PlaceAutoCompleteAdapter
 import com.gallosalocin.go4lunch.databinding.FragmentMapViewBinding
+import com.gallosalocin.go4lunch.models.RestaurantResult
 import com.gallosalocin.go4lunch.models.Workmate
 import com.gallosalocin.go4lunch.util.Constants.LOCATION_PERMISSION_REQUEST_CODE
 import com.gallosalocin.go4lunch.util.Constants.MAP_VIEW_BUNDLE_KEY
@@ -49,6 +50,11 @@ import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.QuerySnapshot
 import dagger.hilt.android.AndroidEntryPoint
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Observer
+import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.schedulers.Schedulers
 import pub.devrel.easypermissions.AppSettingsDialog
 import pub.devrel.easypermissions.EasyPermissions
 import pub.devrel.easypermissions.EasyPermissions.PermissionCallbacks
@@ -104,6 +110,7 @@ class MapViewFragment : Fragment(R.layout.fragment_map_view), OnMapReadyCallback
             mapViewBundle = savedInstanceState.getBundle(MAP_VIEW_BUNDLE_KEY)
         }
         binding.mapView.onCreate(mapViewBundle)
+
     }
 
     // Request all permissions
@@ -185,7 +192,7 @@ class MapViewFragment : Fragment(R.layout.fragment_map_view), OnMapReadyCallback
                 }
             }
         } catch (e: SecurityException) {
-            Timber.e("Exception: %s", e.message)
+            Timber.e("Exception: ${e.message}")
         }
     }
 

@@ -12,10 +12,10 @@
         android:layout_width="match_parent"
         android:layout_height="250dp"
         android:scaleType="centerCrop"
-        android:src="@drawable/family_dinner_wide"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        tools:src="@drawable/family_dinner_wide" />
 
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/iv_back_btn"
@@ -32,13 +32,13 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="16dp"
         android:backgroundTint="@android:color/white"
+        android:contentDescription="@string/select_for_lunch"
         android:src="@drawable/ic_check_empty"
         app:layout_constraintBottom_toBottomOf="@id/iv_details_picture"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/iv_details_picture"
         app:maxImageSize="32dp"
-        tools:targetApi="lollipop"
-        android:contentDescription="@string/select_for_lunch" />
+        tools:targetApi="lollipop" />
 
     <androidx.cardview.widget.CardView
         android:id="@+id/cv_details_address"

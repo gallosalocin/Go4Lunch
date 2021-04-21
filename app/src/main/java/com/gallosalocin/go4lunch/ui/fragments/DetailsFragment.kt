@@ -12,7 +12,6 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.firebase.ui.firestore.FirestoreRecyclerOptions
 import com.gallosalocin.go4lunch.BuildConfig
@@ -142,7 +141,7 @@ class DetailsFragment : Fragment(R.layout.fragment_details) {
     }
 
     private fun getRestaurantDetails(placeId: String) {
-        restaurantViewModel!!.getDetailsRestaurant(placeId, BuildConfig.ApiKey).observe(viewLifecycleOwner) { detailsResult ->
+        restaurantViewModel.getDetailsRestaurant(placeId, BuildConfig.ApiKey).observe(viewLifecycleOwner) { detailsResult ->
             val imageUrl: String
             if (detailsResult != null) {
                 binding.tvDetailsNameRestaurant.text = detailsResult.name
