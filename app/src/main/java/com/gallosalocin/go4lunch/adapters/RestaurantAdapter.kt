@@ -85,9 +85,9 @@ class RestaurantAdapter(
 
     class DiffCallback : DiffUtil.ItemCallback<RestaurantResult>() {
         override fun areItemsTheSame(oldItem: RestaurantResult, newItem: RestaurantResult) =
-                oldItem == newItem
+                oldItem.placeId == newItem.placeId
 
         override fun areContentsTheSame(oldItem: RestaurantResult, newItem: RestaurantResult) =
-                oldItem.placeId.hashCode() == newItem.placeId.hashCode()
+                oldItem == newItem
     }
 }

@@ -15,7 +15,7 @@ interface RestaurantApi {
             @Query("radius") radius: Int,
             @Query("type") type: String,
             @Query("key") key: String
-    ): Observable<RestaurantResponse>
+    ): Call<RestaurantResponse>
 
     @GET("details/json?")
     fun getDetailsRestaurant(

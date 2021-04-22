@@ -29,18 +29,20 @@ import java.util.*
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
-    private var binding: ActivityMainBinding? = null
+    private lateinit var binding: ActivityMainBinding
     private val mAuth = FirebaseAuth.getInstance().currentUser
     private val db = FirebaseFirestore.getInstance()
     private val workmatesCollectionRef = db.collection(Constants.WORKMATES_COLLECTION)
-    private var navController: NavController? = null
+    private lateinit var navController: NavController
 
     override fun onCreate(savedInstanceState: Bundle?) {
         Timber.d("onCreate: called")
         loadSettings()
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
-        val view: View = binding!!.root
+
+        val view: View = binding.root
+
         setContentView(view)
         checkUserLogged()
         setupNavigationComponent()
@@ -52,20 +54,20 @@ class MainActivity : AppCompatActivity() {
         val navHostFragment = (supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment?)!!
         navController = navHostFragment.navController
         val appBarConfiguration = AppBarConfiguration.Builder(R.id.bottom_nav_mapview, R.id.bottom_nav_listview,
-                R.id.bottom_nav_workmates).setOpenableLayout(binding!!.drawerLayout).build()
-        setSupportActionBar(binding!!.toolbar)
-        NavigationUI.setupWithNavController(binding!!.toolbar, navController!!, appBarConfiguration)
-        NavigationUI.setupWithNavController(binding!!.nvMainDrawer, navController!!)
-        NavigationUI.setupWithNavController(binding!!.mainBottomNav, navController!!)
-        binding!!.mainBottomNav.setOnNavigationItemReselectedListener { }
+                R.id.bottom_nav_workmates).setOpenableLayout(binding.drawerLayout).build()
+        setSupportActionBar(binding.toolbar)
+        NavigationUI.setupWithNavController(binding.toolbar, navController, appBarConfiguration)
+        NavigationUI.setupWithNavController(binding.nvMainDrawer, navController)
+        NavigationUI.setupWithNavController(binding.mainBottomNav, navController)
+        binding.mainBottomNav.setOnNavigationItemReselectedListener { }
     }
 
     // Display User Info Drawer
     private fun setupUserInfoDrawer() {
         Timber.d("setupUserInfoDrawer")
-        val mUserName = binding!!.nvMainDrawer.getHeaderView(0).findViewById<TextView>(R.id.tv_drawer_name)
-        val mMail = binding!!.nvMainDrawer.getHeaderView(0).findViewById<TextView>(R.id.tv_drawer_mail)
-        val mUserImage: CircleImageView = binding!!.nvMainDrawer.getHeaderView(0).findViewById(R.id.iv_drawer_user_image)
+        val mUserName = binding.nvMainDrawer.getHeaderView(0).findViewById<TextView>(R.id.tv_drawer_name)
+        val mMail = binding.nvMainDrawer.getHeaderView(0).findViewById<TextView>(R.id.tv_drawer_mail)
+        val mUserImage: CircleImageView = binding.nvMainDrawer.getHeaderView(0).findViewById(R.id.iv_drawer_user_image)
         mUserName.text = mAuth!!.displayName
         mMail.text = mAuth.email
         Picasso.get().load(mAuth.photoUrl).into(mUserImage)
@@ -73,21 +75,21 @@ class MainActivity : AppCompatActivity() {
 
     // Setup View Visibility
     private fun setupViewVisibility() {
-        navController!!.addOnDestinationChangedListener { _: NavController?, destination: NavDestination, _: Bundle? ->
+        navController.addOnDestinationChangedListener { _: NavController?, destination: NavDestination, _: Bundle? ->
             when (destination.id) {
                 R.id.bottom_nav_mapview, R.id.bottom_nav_workmates, R.id.bottom_nav_listview -> {
-                    binding!!.mainBottomNav.visibility = View.VISIBLE
-                    binding!!.toolbar.visibility = View.VISIBLE
-                    binding!!.toolbar.setBackgroundResource(R.color.colorPrimary)
+                    binding.mainBottomNav.visibility = View.VISIBLE
+                    binding.toolbar.visibility = View.VISIBLE
+                    binding.toolbar.setBackgroundResource(R.color.colorPrimary)
                     invalidateOptionsMenu()
                 }
                 R.id.lunchFragment, R.id.settingsFragment -> {
-                    binding!!.mainBottomNav.visibility = View.GONE
+                    binding.mainBottomNav.visibility = View.GONE
                     invalidateOptionsMenu()
                 }
                 R.id.detailsFragment -> {
-                    binding!!.mainBottomNav.visibility = View.GONE
-                    binding!!.toolbar.visibility = View.GONE
+                    binding.mainBottomNav.visibility = View.GONE
+                    binding.toolbar.visibility = View.GONE
                     invalidateOptionsMenu()
                 }
                 else -> {

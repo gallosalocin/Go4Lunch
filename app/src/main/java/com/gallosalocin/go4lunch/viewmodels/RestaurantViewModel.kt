@@ -7,6 +7,7 @@ import com.gallosalocin.go4lunch.models.RestaurantResult
 import com.gallosalocin.go4lunch.services.RestaurantApi
 import com.gallosalocin.go4lunch.services.dto.DetailsResponse
 import com.gallosalocin.go4lunch.services.dto.DetailsResult
+import com.gallosalocin.go4lunch.services.dto.RestaurantResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observable
@@ -41,42 +42,42 @@ class RestaurantViewModel @Inject constructor(
     }
 
     private fun apiCallNearbyRestaurant(currentLocation: String, radius: Int, type: String, key: String) {
-        restaurantApi.getNearbyRestaurant(currentLocation, radius, type, key)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                        { value -> restaurantList.postValue(value.restaurantResults) },
-                        { error -> Timber.e("$error") },
-                        { Timber.d("Test -> Completed") }
-                )
-    }
+        Observable.create<List<RestaurantResult>> {
+            restaurantApi.getNearbyRestaurant(currentLocation, radius, type, key).enqueue(object : Callback<RestaurantResponse> {
+                override fun onResponse(call: Call<RestaurantResponse>, response: Response<RestaurantResponse>) {
+                    it.onNext(response.body()?.restaurantResults)
+                }
 
-    private fun apiCallDetailsRestaurant(placeId: String, key: String) {
-        Observable.create<Call<DetailsResponse>> {
-            try {
-                it?.onNext(restaurantApi.getDetailsRestaurant(placeId, key))
-                it?.onComplete()
-            } catch (error: Exception) {
-                it?.onError(error)
-                Timber.d("Test -> onError : $error")
-            }
+                override fun onFailure(call: Call<RestaurantResponse>, throwable: Throwable) {
+                    Timber.e("$throwable")
+                }
+            })
         }
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                        {
-                            it.enqueue(object : Callback<DetailsResponse?> {
-                                override fun onResponse(call: Call<DetailsResponse?>, response: Response<DetailsResponse?>) {
-                                    detailsResult.postValue(response.body()?.detailsResult)
-                                }
+                        { restaurantList.postValue(it) },
+                        { error -> Timber.e("$error") },
+                )
+    }
 
-                                override fun onFailure(call: Call<DetailsResponse?>, throwable: Throwable) {
-                                    Timber.d("Test -> onFailure : ${throwable.message}")
-                                }
-                            })
-                        },
-                        { error -> Timber.e("Test -> onError : $error") },
-                        { Timber.d("Test -> onComplete : called") }
+    private fun apiCallDetailsRestaurant(placeId: String, key: String) {
+        Observable.create<DetailsResult> {
+            restaurantApi.getDetailsRestaurant(placeId, key).enqueue(object : Callback<DetailsResponse?> {
+                override fun onResponse(call: Call<DetailsResponse?>, response: Response<DetailsResponse?>) {
+                    it.onNext(response.body()?.detailsResult)
+                }
+
+                override fun onFailure(call: Call<DetailsResponse?>, throwable: Throwable) {
+                    Timber.e("$throwable")
+                }
+            })
+        }
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        { detailsResult.postValue(it) },
+                        { error -> Timber.e("Test -> onError : $error") }
                 )
     }
 }
