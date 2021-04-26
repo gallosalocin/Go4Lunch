@@ -43,14 +43,14 @@ class DetailsFragment : Fragment(R.layout.fragment_details) {
     private val db = FirebaseFirestore.getInstance()
     private val workmatesCollectionRef = db.collection(Constants.WORKMATES_COLLECTION)
     private var currentWorkmate: Workmate? = null
-    private var mAdapter: WorkmateAdapter? = null
-    private var restaurantResult: RestaurantResult? = null
+    private lateinit var mAdapter: WorkmateAdapter
+    private lateinit var restaurantResult: RestaurantResult
     private lateinit var placeId: String
-    private var args: DetailsFragmentArgs? = null
+    private lateinit var args: DetailsFragmentArgs
     private var isRestaurantCheck = false
     private var isFavoriteCheck = false
     private var fragmentChoice = 0
-    private var workmatesToday: String? = null
+    private lateinit var workmatesToday: String
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentDetailsBinding.inflate(inflater, container, false)
@@ -104,16 +104,16 @@ class DetailsFragment : Fragment(R.layout.fragment_details) {
         if (arguments != null) {
             args = DetailsFragmentArgs.fromBundle(requireArguments())
         }
-        if (args!!.placeId != null) {
-            placeId = args!!.placeId.toString()
+        if (args.placeId != null) {
+            placeId = args.placeId.toString()
             fragmentChoice = 1
             getRestaurantDetails(placeId)
             setupRecyclerView(placeId)
-        } else if (args!!.restaurantResult != null) {
-            restaurantResult = args!!.restaurantResult
+        } else if (args.restaurantResult != null) {
+            restaurantResult = args.restaurantResult!!
             fragmentChoice = 2
-            restaurantResult!!.placeId?.let { getRestaurantDetails(it) }
-            setupRecyclerView(restaurantResult!!.placeId)
+            getRestaurantDetails(restaurantResult.placeId)
+            setupRecyclerView(restaurantResult.placeId)
         }
     }
 
@@ -141,7 +141,7 @@ class DetailsFragment : Fragment(R.layout.fragment_details) {
     }
 
     private fun getRestaurantDetails(placeId: String) {
-        restaurantViewModel.getDetailsRestaurant(placeId, BuildConfig.ApiKey).observe(viewLifecycleOwner) { detailsResult ->
+        restaurantViewModel.getDetailsRestaurant(placeId, BuildConfig.ApiKey).subscribe { detailsResult ->
             val imageUrl: String
             if (detailsResult != null) {
                 binding.tvDetailsNameRestaurant.text = detailsResult.name
@@ -196,9 +196,9 @@ class DetailsFragment : Fragment(R.layout.fragment_details) {
                         saveData(this.placeId)
                         alarmNotification(detailsResult.name, detailsResult.address, workmatesToday)
                     } else {
-                        saveRestaurantForLunch(restaurantResult!!.placeId, restaurantResult!!.name)
-                        saveData(restaurantResult!!.placeId)
-                        alarmNotification(restaurantResult!!.name, restaurantResult!!.address, workmatesToday)
+                        saveRestaurantForLunch(restaurantResult.placeId, restaurantResult.name)
+                        saveData(restaurantResult.placeId)
+                        alarmNotification(restaurantResult.name, restaurantResult.address, workmatesToday)
                     }
                 }
             }
@@ -251,8 +251,8 @@ class DetailsFragment : Fragment(R.layout.fragment_details) {
                     workmatesToday += "$name, "
                 }
             }
-            if (workmatesToday!!.length > 2) {
-                workmatesToday = workmatesToday!!.substring(0, workmatesToday!!.length - 2)
+            if (workmatesToday.length > 2) {
+                workmatesToday = workmatesToday.substring(0, workmatesToday.length - 2)
             }
         }
     }
@@ -266,7 +266,7 @@ class DetailsFragment : Fragment(R.layout.fragment_details) {
                     return@addSnapshotListener
                 }
                 if (documentSnapshot!!.exists()) {
-                    currentWorkmate = documentSnapshot.toObject(Workmate::class.java)
+                    currentWorkmate = documentSnapshot.toObject(Workmate::class.java)!!
                     when (fragmentChoice) {
                         1 -> {
                             restaurantIsForLunch(placeId)
@@ -274,9 +274,9 @@ class DetailsFragment : Fragment(R.layout.fragment_details) {
                             retrieveWorkmatesForLunch(placeId)
                         }
                         2 -> {
-                            restaurantIsForLunch(restaurantResult!!.placeId)
-                            restaurantIsFavorite(restaurantResult!!.placeId)
-                            retrieveWorkmatesForLunch(restaurantResult!!.placeId)
+                            restaurantIsForLunch(restaurantResult.placeId)
+                            restaurantIsFavorite(restaurantResult.placeId)
+                            retrieveWorkmatesForLunch(restaurantResult.placeId)
                         }
                         else -> {
                         }
@@ -315,13 +315,13 @@ class DetailsFragment : Fragment(R.layout.fragment_details) {
     override fun onStart() {
         super.onStart()
         Timber.d("onStart")
-        mAdapter!!.startListening()
+        mAdapter.startListening()
         setupDocumentSnapshot()
     }
 
     override fun onStop() {
         super.onStop()
-        mAdapter!!.stopListening()
+        mAdapter.stopListening()
         workmateListener!!.remove()
     }
 

@@ -26,7 +26,6 @@ import com.gallosalocin.go4lunch.BuildConfig
 import com.gallosalocin.go4lunch.R
 import com.gallosalocin.go4lunch.adapters.PlaceAutoCompleteAdapter
 import com.gallosalocin.go4lunch.databinding.FragmentMapViewBinding
-import com.gallosalocin.go4lunch.models.RestaurantResult
 import com.gallosalocin.go4lunch.models.Workmate
 import com.gallosalocin.go4lunch.util.Constants.LOCATION_PERMISSION_REQUEST_CODE
 import com.gallosalocin.go4lunch.util.Constants.MAP_VIEW_BUNDLE_KEY
@@ -50,11 +49,7 @@ import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.QuerySnapshot
 import dagger.hilt.android.AndroidEntryPoint
-import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
-import io.reactivex.rxjava3.core.Observable
-import io.reactivex.rxjava3.core.Observer
 import io.reactivex.rxjava3.disposables.Disposable
-import io.reactivex.rxjava3.schedulers.Schedulers
 import pub.devrel.easypermissions.AppSettingsDialog
 import pub.devrel.easypermissions.EasyPermissions
 import pub.devrel.easypermissions.EasyPermissions.PermissionCallbacks
@@ -85,6 +80,8 @@ class MapViewFragment : Fragment(R.layout.fragment_map_view), OnMapReadyCallback
     private lateinit var markerOptions: MarkerOptions
     private lateinit var placesClient: PlacesClient
     private lateinit var placeAutocompleteAdapter: PlaceAutoCompleteAdapter
+
+    private lateinit var disposable: Disposable
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentMapViewBinding.inflate(inflater, container, false)
@@ -187,7 +184,7 @@ class MapViewFragment : Fragment(R.layout.fragment_map_view), OnMapReadyCallback
                     currentLatLng = LatLng(latitude, longitude)
                     currentLocation = "$latitude, $longitude"
                     val cameraUpdate = CameraUpdateFactory.newLatLngZoom(currentLatLng, defaultZoom)
-                    getAllRestaurants()
+                    getNearbyRestaurants()
                     mMap.moveCamera(cameraUpdate)
                 }
             }
@@ -197,27 +194,31 @@ class MapViewFragment : Fragment(R.layout.fragment_map_view), OnMapReadyCallback
     }
 
     // Get nearby restaurants from api
-    private fun getAllRestaurants() {
+    private fun getNearbyRestaurants() {
         val type = "restaurant"
-        restaurantViewModel.getNearbyRestaurantList(currentLocation, radius.toInt(), type, BuildConfig.ApiKey)
-                .observe(viewLifecycleOwner) { restaurants ->
-                    for (i in restaurants.indices) {
-                        val latLng = LatLng(restaurants[i].geometry!!.location!!.lat.toDouble(),
-                                restaurants[i].geometry!!.location!!.lng.toDouble())
-                        markerOptions = MarkerOptions()
-                        markerOptions.position(latLng)
-                        markerOptions.title(restaurants[i].placeId)
-                        for (j in chosenRestaurants.indices) {
-                            if (restaurants[i].placeId == chosenRestaurants[j]) {
-                                markerOptions.icon(bitmapDescriptorFromVector(R.drawable.ic_pin_restaurant_green))
-                                break
-                            } else {
-                                markerOptions.icon(bitmapDescriptorFromVector(R.drawable.ic_pin_restaurant_orange))
-                            }
+
+        disposable = restaurantViewModel.getNearbyRestaurantList(currentLocation, radius.toInt(), type, BuildConfig.ApiKey).subscribe {
+            for (i in it.indices) {
+                val latLng = LatLng(
+                        it[i].geometry.location.lat.toDouble(),
+                        it[i].geometry.location.lng.toDouble()
+                )
+                markerOptions = MarkerOptions()
+                markerOptions.apply {
+                    position(latLng)
+                    title(it[i].placeId)
+                    for (j in chosenRestaurants.indices) {
+                        if (it[i].placeId == chosenRestaurants[j]) {
+                            icon(bitmapDescriptorFromVector(R.drawable.ic_pin_restaurant_green))
+                            break
+                        } else {
+                            icon(bitmapDescriptorFromVector(R.drawable.ic_pin_restaurant_orange))
                         }
-                        mMap.addMarker(markerOptions)
                     }
+                    mMap.addMarker(this)
                 }
+            }
+        }
     }
 
     // Bitmap Descriptor
@@ -379,4 +380,11 @@ class MapViewFragment : Fragment(R.layout.fragment_map_view), OnMapReadyCallback
         super.onLowMemory()
         binding.mapView.onLowMemory()
     }
+
+//    override fun onDestroyView() {
+//        super.onDestroyView()
+//        if (!disposable.isDisposed) {
+//            disposable.dispose()
+//        }
+//    }
 }

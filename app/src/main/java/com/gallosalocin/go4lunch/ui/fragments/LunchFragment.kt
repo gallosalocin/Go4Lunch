@@ -62,7 +62,7 @@ class LunchFragment : Fragment(R.layout.fragment_lunch) {
     }
 
     private fun getRestaurantDetails(placeId: String?) {
-        restaurantViewModel.getDetailsRestaurant(placeId!!, BuildConfig.ApiKey).observe(viewLifecycleOwner) { detailsResult ->
+        restaurantViewModel.getDetailsRestaurant(placeId!!, BuildConfig.ApiKey).subscribe { detailsResult ->
             Timber.d("getRestaurantDetails")
             if (isRestaurantCheck) {
                 val imageUrl: String

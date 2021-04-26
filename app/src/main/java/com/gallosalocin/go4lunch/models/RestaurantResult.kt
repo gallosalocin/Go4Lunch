@@ -7,16 +7,16 @@ import com.google.gson.annotations.SerializedName
 import java.io.Serializable
 
 data class RestaurantResult(
-        var geometry: RestaurantGeometry? = null,
-        var name: String? = null,
+        var geometry: RestaurantGeometry,
+        var name: String,
         @SerializedName("opening_hours")
-        var restaurantOpeningHours: RestaurantOpeningHours? = null,
+        var restaurantOpeningHours: RestaurantOpeningHours?,
         @SerializedName("vicinity")
-        var address: String? = null,
+        var address: String,
         @SerializedName("place_id")
-        var placeId: String? = null,
+        var placeId: String,
         @SerializedName("photos")
-        var restaurantPhotos: List<RestaurantPhoto>? = null,
+        var restaurantPhotos: List<RestaurantPhoto>?,
         var rating: Float = 0f,
         var distance: Int = 0,
         var workmates: Float = 0F,

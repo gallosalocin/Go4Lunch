@@ -1,6 +1,9 @@
 package com.gallosalocin.go4lunch.ui.fragments
 
 import com.gallosalocin.go4lunch.models.RestaurantResult
+import com.gallosalocin.go4lunch.services.dto.RestaurantGeometry
+import com.gallosalocin.go4lunch.services.dto.RestaurantLocation
+import com.gallosalocin.go4lunch.services.dto.RestaurantOpeningHours
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -13,12 +16,30 @@ class ListViewFragmentTest {
 
     @Before
     fun setUp() {
-        restaurantResultTest = RestaurantResult()
+        restaurantResultTest = RestaurantResult(
+                name = "",
+                address = "",
+                placeId = "",
+                distance = 0,
+                rating = 0F,
+                workmates = 0F,
+                restaurantOpeningHours = RestaurantOpeningHours(false),
+                geometry = RestaurantGeometry(RestaurantLocation(0f, 0f)),
+                restaurantPhotos = listOf()
+        )
         restaurantResultList = ArrayList()
-        restaurantResultList.add(RestaurantResult(name = "name 1", rating = 2f, workmates = 3F, distance = 4))
-        restaurantResultList.add(RestaurantResult(name = "name 2", rating = 3f, workmates = 4F, distance = 1))
-        restaurantResultList.add(RestaurantResult(name = "name 3", rating = 4f, workmates = 1F, distance = 2))
-        restaurantResultList.add(RestaurantResult(name = "name 4", rating = 1f, workmates = 2F, distance = 3))
+        restaurantResultList.add(RestaurantResult(name = "name 1", rating = 2f, workmates = 3F, distance = 4, address = "", placeId = "", restaurantOpeningHours = RestaurantOpeningHours(false),
+                geometry = RestaurantGeometry(RestaurantLocation(0f, 0f)),
+                restaurantPhotos = listOf()))
+        restaurantResultList.add(RestaurantResult(name = "name 2", rating = 3f, workmates = 4F, distance = 1, address = "", placeId = "", restaurantOpeningHours = RestaurantOpeningHours(false),
+                geometry = RestaurantGeometry(RestaurantLocation(0f, 0f)),
+                restaurantPhotos = listOf()))
+        restaurantResultList.add(RestaurantResult(name = "name 3", rating = 4f, workmates = 1F, distance = 2, address = "", placeId = "", restaurantOpeningHours = RestaurantOpeningHours(false),
+                geometry = RestaurantGeometry(RestaurantLocation(0f, 0f)),
+                restaurantPhotos = listOf()))
+        restaurantResultList.add(RestaurantResult(name = "name 4", rating = 1f, workmates = 2F, distance = 3, address = "", placeId = "", restaurantOpeningHours = RestaurantOpeningHours(false),
+                geometry = RestaurantGeometry(RestaurantLocation(0f, 0f)),
+                restaurantPhotos = listOf()))
     }
 
     @Test
