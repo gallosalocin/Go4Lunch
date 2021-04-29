@@ -10,7 +10,6 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.firebase.ui.firestore.FirestoreRecyclerOptions
 import com.gallosalocin.go4lunch.BuildConfig
@@ -29,6 +28,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.*
 import com.squareup.picasso.Picasso
 import dagger.hilt.android.AndroidEntryPoint
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.schedulers.Schedulers
 import timber.log.Timber
 import java.util.*
 
@@ -61,67 +62,70 @@ class LunchFragment : Fragment(R.layout.fragment_lunch) {
         setupRecyclerView(placeId)
     }
 
-    private fun getRestaurantDetails(placeId: String?) {
-        restaurantViewModel.getDetailsRestaurant(placeId!!, BuildConfig.ApiKey).observe(viewLifecycleOwner) { detailsResult ->
-            Timber.d("getRestaurantDetails")
-            if (isRestaurantCheck) {
-                val imageUrl: String
-                if (detailsResult != null) {
-                    binding.tvMyLunchNameRestaurant.text = detailsResult.name
-                    binding.tvMyLunchInformation.text = detailsResult.address
-                    binding.ratingMyLunch.rating = detailsResult.rating * 3 / 5
-                    if (detailsResult.detailsPhotos != null) {
-                        imageUrl = getPhoto(detailsResult.detailsPhotos!![0].photoReference, detailsResult.detailsPhotos!![0].width)
-                        Picasso.get().load(imageUrl).fit().centerCrop().into(binding.ivMyLunchPicture)
-                    } else {
-                        binding.ivMyLunchPicture.setImageResource(R.drawable.ic_broken_image)
-                    }
-                    binding.btnMyLunchCall.setOnClickListener {
-                        if (detailsResult.formattedPhoneNumber != null) {
-                            val callRestaurant = Intent(Intent.ACTION_DIAL)
-                            callRestaurant.data = Uri.parse("tel:${detailsResult.formattedPhoneNumber}")
-                            startActivity(callRestaurant)
-                        } else {
-                            Toast.makeText(requireContext(), R.string.alert_details_no_phone_number, Toast.LENGTH_SHORT).show()
-                        }
-                    }
+    private fun getRestaurantDetails(placeId: String) {
+        restaurantViewModel.detailsResultPS
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { detailsResult ->
+                    if (isRestaurantCheck) {
+                        val imageUrl: String
+                        if (detailsResult != null) {
+                            binding.tvMyLunchNameRestaurant.text = detailsResult.name
+                            binding.tvMyLunchInformation.text = detailsResult.address
+                            binding.ratingMyLunch.rating = detailsResult.rating * 3 / 5
+                            if (detailsResult.detailsPhotos != null) {
+                                imageUrl = getPhoto(detailsResult.detailsPhotos!![0].photoReference, detailsResult.detailsPhotos!![0].width)
+                                Picasso.get().load(imageUrl).fit().centerCrop().into(binding.ivMyLunchPicture)
+                            } else {
+                                binding.ivMyLunchPicture.setImageResource(R.drawable.ic_broken_image)
+                            }
+                            binding.btnMyLunchCall.setOnClickListener {
+                                if (detailsResult.formattedPhoneNumber != null) {
+                                    val callRestaurant = Intent(Intent.ACTION_DIAL)
+                                    callRestaurant.data = Uri.parse("tel:${detailsResult.formattedPhoneNumber}")
+                                    startActivity(callRestaurant)
+                                } else {
+                                    Toast.makeText(requireContext(), R.string.alert_details_no_phone_number, Toast.LENGTH_SHORT).show()
+                                }
+                            }
 
-                    binding.btnMyLunchLike.setOnClickListener {
-                        isFavoriteCheck = if (isFavoriteCheck) {
-                            workmatesCollectionRef.document(Objects.requireNonNull(mAuth.uid)).update(FAVORITE_FIELD,
-                                    FieldValue.arrayRemove(placeId))
-                            binding.btnMyLunchLike.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_like_red, 0, 0)
-                            false
-                        } else {
-                            workmatesCollectionRef.document(Objects.requireNonNull(mAuth.uid)).update(FAVORITE_FIELD,
-                                    FieldValue.arrayUnion(placeId))
-                            binding.btnMyLunchLike.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_like_yellow, 0, 0)
-                            true
-                        }
-                    }
+                            binding.btnMyLunchLike.setOnClickListener {
+                                isFavoriteCheck = if (isFavoriteCheck) {
+                                    workmatesCollectionRef.document(Objects.requireNonNull(mAuth.uid)).update(FAVORITE_FIELD,
+                                            FieldValue.arrayRemove(placeId))
+                                    binding.btnMyLunchLike.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_like_red, 0, 0)
+                                    false
+                                } else {
+                                    workmatesCollectionRef.document(Objects.requireNonNull(mAuth.uid)).update(FAVORITE_FIELD,
+                                            FieldValue.arrayUnion(placeId))
+                                    binding.btnMyLunchLike.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_like_yellow, 0, 0)
+                                    true
+                                }
+                            }
 
-                    binding.btnMyLunchWebsite.setOnClickListener {
-                        if (detailsResult.website != null) {
-                            val linkRestaurant = Intent(Intent.ACTION_VIEW)
-                            linkRestaurant.data = Uri.parse(detailsResult.website)
-                            startActivity(linkRestaurant)
-                        } else {
-                            Toast.makeText(requireContext(), R.string.alert_details_no_website, Toast.LENGTH_SHORT).show()
-                        }
-                    }
+                            binding.btnMyLunchWebsite.setOnClickListener {
+                                if (detailsResult.website != null) {
+                                    val linkRestaurant = Intent(Intent.ACTION_VIEW)
+                                    linkRestaurant.data = Uri.parse(detailsResult.website)
+                                    startActivity(linkRestaurant)
+                                } else {
+                                    Toast.makeText(requireContext(), R.string.alert_details_no_website, Toast.LENGTH_SHORT).show()
+                                }
+                            }
 
-                    binding.fabMyLunchChoice.setOnClickListener {
-                        if (isRestaurantCheck) {
-                            workmatesCollectionRef.document(mAuth.uid).update(CHOSEN_RESTAURANT_ID_FIELD, "")
-                            workmatesCollectionRef.document(mAuth.uid).update(CHOSEN_RESTAURANT_NAME_FIELD, "")
-                            binding.fabMyLunchChoice.setImageResource(R.drawable.ic_check_empty)
-                            isRestaurantCheck = false
-                            viewVisibility()
+                            binding.fabMyLunchChoice.setOnClickListener {
+                                if (isRestaurantCheck) {
+                                    workmatesCollectionRef.document(mAuth.uid).update(CHOSEN_RESTAURANT_ID_FIELD, "")
+                                    workmatesCollectionRef.document(mAuth.uid).update(CHOSEN_RESTAURANT_NAME_FIELD, "")
+                                    binding.fabMyLunchChoice.setImageResource(R.drawable.ic_check_empty)
+                                    isRestaurantCheck = false
+                                    viewVisibility()
+                                }
+                            }
                         }
                     }
                 }
-            }
-        }
+        restaurantViewModel.apiCallDetailsRestaurant(placeId, BuildConfig.ApiKey)
     }
 
     private fun setupRecyclerView(placeID: String?) {
@@ -160,7 +164,7 @@ class LunchFragment : Fragment(R.layout.fragment_lunch) {
                     restaurantIsFavorite(currentWorkmate!!.chosenRestaurantId)
                     isRestaurantCheck = true
                     binding.fabMyLunchChoice.setImageResource(R.drawable.ic_check_ok)
-                    getRestaurantDetails(currentWorkmate!!.chosenRestaurantId)
+                    currentWorkmate!!.chosenRestaurantId?.let { getRestaurantDetails(it) }
                     viewVisibility()
                     Timber.d("setupDocumentSnapshot placeId: %s", currentWorkmate!!.chosenRestaurantId)
                 }

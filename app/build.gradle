@@ -72,11 +72,14 @@ dependencies {
 
     testImplementation 'junit:junit:4.13.2'
     testImplementation 'com.google.truth:truth:1.0.1'
-    testImplementation 'org.mockito:mockito-core:2.19.0'
+    testImplementation 'org.mockito:mockito-core:3.7.0'
     testImplementation 'org.mockito:mockito-inline:3.7.0'
     testImplementation 'android.arch.core:core-testing:1.1.1'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
+
+    implementation 'com.squareup.retrofit2:retrofit-mock:2.9.0'
+
 
     // CircleImageView
     implementation 'de.hdodenhof:circleimageview:3.1.0'

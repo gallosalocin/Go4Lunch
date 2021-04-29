@@ -1,4 +1,4 @@
-package com.gallosalocin.go4lunch.services.dto
+package com.gallosalocin.go4lunch.data.network.dto
 
 import com.google.gson.annotations.SerializedName
 import java.io.Serializable

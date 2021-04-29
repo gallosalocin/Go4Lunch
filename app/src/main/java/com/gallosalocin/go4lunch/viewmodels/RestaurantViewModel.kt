@@ -2,16 +2,18 @@ package com.gallosalocin.go4lunch.viewmodels
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.MutableLiveData
+import com.gallosalocin.go4lunch.data.network.dto.DetailsResponse
+import com.gallosalocin.go4lunch.data.network.dto.DetailsResult
+import com.gallosalocin.go4lunch.data.network.dto.RestaurantResponse
+import com.gallosalocin.go4lunch.data.repositories.Repository
 import com.gallosalocin.go4lunch.models.RestaurantResult
-import com.gallosalocin.go4lunch.services.RestaurantApi
-import com.gallosalocin.go4lunch.services.dto.DetailsResponse
-import com.gallosalocin.go4lunch.services.dto.DetailsResult
-import com.gallosalocin.go4lunch.services.dto.RestaurantResponse
 import dagger.hilt.android.lifecycle.HiltViewModel
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.core.Observable
+import io.reactivex.rxjava3.core.Single
+import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
+import io.reactivex.rxjava3.subjects.PublishSubject
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -22,28 +24,24 @@ import javax.inject.Inject
 @HiltViewModel
 class RestaurantViewModel @Inject constructor(
         application: Application,
-        private var restaurantApi: RestaurantApi
+        private var repository: Repository
 ) : AndroidViewModel(application) {
 
-    private lateinit var restaurantList: MutableLiveData<List<RestaurantResult>>
-    private lateinit var detailsResult: MutableLiveData<DetailsResult>
+    private lateinit var disposable: Disposable
 
+    private lateinit var restaurantListPS: PublishSubject<List<RestaurantResult>>
 
-    fun getNearbyRestaurantList(currentLocation: String, radius: Int, type: String, key: String): MutableLiveData<List<RestaurantResult>> {
-        restaurantList = MutableLiveData()
+    var detailsResultPS: PublishSubject<DetailsResult> = PublishSubject.create()
+
+    fun getNearbyRestaurantList(currentLocation: String, radius: Int, type: String, key: String): PublishSubject<List<RestaurantResult>> {
+        restaurantListPS = PublishSubject.create()
         apiCallNearbyRestaurant(currentLocation, radius, type, key)
-        return restaurantList
-    }
-
-    fun getDetailsRestaurant(placeId: String, key: String): MutableLiveData<DetailsResult> {
-        detailsResult = MutableLiveData()
-        apiCallDetailsRestaurant(placeId, key)
-        return detailsResult
+        return restaurantListPS
     }
 
     private fun apiCallNearbyRestaurant(currentLocation: String, radius: Int, type: String, key: String) {
-        Observable.create<List<RestaurantResult>> {
-            restaurantApi.getNearbyRestaurant(currentLocation, radius, type, key).enqueue(object : Callback<RestaurantResponse> {
+        disposable = Observable.create<List<RestaurantResult>> {
+            repository.remote.getNearbyRestaurants(currentLocation, radius, type, key).enqueue(object : Callback<RestaurantResponse> {
                 override fun onResponse(call: Call<RestaurantResponse>, response: Response<RestaurantResponse>) {
                     it.onNext(response.body()?.restaurantResults)
                 }
@@ -56,16 +54,17 @@ class RestaurantViewModel @Inject constructor(
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                        { restaurantList.postValue(it) },
+                        { restaurantListPS.onNext(it) },
                         { error -> Timber.e("$error") },
                 )
     }
 
-    private fun apiCallDetailsRestaurant(placeId: String, key: String) {
-        Observable.create<DetailsResult> {
-            restaurantApi.getDetailsRestaurant(placeId, key).enqueue(object : Callback<DetailsResponse?> {
+    fun apiCallDetailsRestaurant(placeId: String, key: String) {
+        disposable = Single.create<DetailsResult> {
+            repository.remote.getDetailsRestaurant(placeId, key).enqueue(object : Callback<DetailsResponse?> {
                 override fun onResponse(call: Call<DetailsResponse?>, response: Response<DetailsResponse?>) {
-                    it.onNext(response.body()?.detailsResult)
+                    it.onSuccess(response.body()?.detailsResult)
+//                    it.onNext(response.body()?.detailsResult)
                 }
 
                 override fun onFailure(call: Call<DetailsResponse?>, throwable: Throwable) {
@@ -76,8 +75,15 @@ class RestaurantViewModel @Inject constructor(
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                        { detailsResult.postValue(it) },
-                        { error -> Timber.e("Test -> onError : $error") }
+                        { detailsResultPS.onNext(it) },
+                        { error -> Timber.e("$error") }
                 )
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        if (!disposable.isDisposed) {
+            disposable.dispose()
+        }
     }
 }

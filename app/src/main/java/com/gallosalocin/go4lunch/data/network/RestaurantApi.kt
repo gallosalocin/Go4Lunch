@@ -1,8 +1,7 @@
-package com.gallosalocin.go4lunch.services
+package com.gallosalocin.go4lunch.data.network
 
-import com.gallosalocin.go4lunch.services.dto.DetailsResponse
-import com.gallosalocin.go4lunch.services.dto.RestaurantResponse
-import io.reactivex.rxjava3.core.Observable
+import com.gallosalocin.go4lunch.data.network.dto.DetailsResponse
+import com.gallosalocin.go4lunch.data.network.dto.RestaurantResponse
 import retrofit2.Call
 import retrofit2.http.GET
 import retrofit2.http.Query

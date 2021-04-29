@@ -1,6 +1,6 @@
 package com.gallosalocin.go4lunch.di
 
-import com.gallosalocin.go4lunch.services.RestaurantApi
+import com.gallosalocin.go4lunch.data.network.RestaurantApi
 import com.gallosalocin.go4lunch.util.Constants.BASE_URL
 import dagger.Module
 import dagger.Provides
@@ -9,7 +9,6 @@ import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
-import retrofit2.adapter.rxjava3.RxJava3CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton

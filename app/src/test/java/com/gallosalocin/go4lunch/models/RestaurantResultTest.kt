@@ -1,5 +1,8 @@
 package com.gallosalocin.go4lunch.models
 
+import com.gallosalocin.go4lunch.data.network.dto.RestaurantGeometry
+import com.gallosalocin.go4lunch.data.network.dto.RestaurantLocation
+import com.gallosalocin.go4lunch.data.network.dto.RestaurantOpeningHours
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test
@@ -10,7 +13,17 @@ class RestaurantResultTest {
 
     @Before
     fun setup() {
-        restaurantResult = RestaurantResult()
+        restaurantResult = RestaurantResult(
+                name = "",
+                address = "",
+                placeId = "",
+                distance = 0,
+                rating = 0F,
+                workmates = 0F,
+                restaurantOpeningHours = RestaurantOpeningHours(false),
+                geometry = RestaurantGeometry(RestaurantLocation(0f, 0f)),
+                restaurantPhotos = listOf()
+        )
     }
 
     @Test
