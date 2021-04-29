@@ -1,8 +1,8 @@
 package com.gallosalocin.go4lunch.models
 
-import com.gallosalocin.go4lunch.services.dto.RestaurantGeometry
-import com.gallosalocin.go4lunch.services.dto.RestaurantLocation
-import com.gallosalocin.go4lunch.services.dto.RestaurantOpeningHours
+import com.gallosalocin.go4lunch.data.network.dto.RestaurantGeometry
+import com.gallosalocin.go4lunch.data.network.dto.RestaurantLocation
+import com.gallosalocin.go4lunch.data.network.dto.RestaurantOpeningHours
 import com.google.common.truth.Truth.assertThat
 import org.junit.Before
 import org.junit.Test

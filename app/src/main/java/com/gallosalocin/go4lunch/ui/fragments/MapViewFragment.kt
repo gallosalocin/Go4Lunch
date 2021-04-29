@@ -381,10 +381,10 @@ class MapViewFragment : Fragment(R.layout.fragment_map_view), OnMapReadyCallback
         binding.mapView.onLowMemory()
     }
 
-//    override fun onDestroyView() {
-//        super.onDestroyView()
-//        if (!disposable.isDisposed) {
-//            disposable.dispose()
-//        }
-//    }
+
+    override fun onDestroy() {
+        disposable.dispose()
+        super.onDestroy()
+    }
+
 }

@@ -27,6 +27,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.*
 import com.squareup.picasso.Picasso
 import dagger.hilt.android.AndroidEntryPoint
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.schedulers.Schedulers
 import timber.log.Timber
 import java.util.*
 
@@ -141,68 +143,72 @@ class DetailsFragment : Fragment(R.layout.fragment_details) {
     }
 
     private fun getRestaurantDetails(placeId: String) {
-        restaurantViewModel.getDetailsRestaurant(placeId, BuildConfig.ApiKey).subscribe { detailsResult ->
-            val imageUrl: String
-            if (detailsResult != null) {
-                binding.tvDetailsNameRestaurant.text = detailsResult.name
-                binding.tvDetailsInformation.text = detailsResult.address
-                binding.ratingDetails.rating = detailsResult.rating * 3 / 5
-                if (detailsResult.detailsPhotos != null) {
-                    imageUrl = getPhoto(detailsResult.detailsPhotos!![0].photoReference, detailsResult.detailsPhotos!![0].width)
-                    Picasso.get().load(imageUrl).fit().centerCrop().into(binding.ivDetailsPicture)
-                } else {
-                    binding.ivDetailsPicture.setImageResource(R.drawable.ic_broken_image)
-                }
-
-                binding.btnDetailsCall.setOnClickListener {
-                    if (detailsResult.formattedPhoneNumber != null) {
-                        val callRestaurant = Intent(Intent.ACTION_DIAL)
-                        callRestaurant.data = Uri.parse("tel:${detailsResult.formattedPhoneNumber}")
-                        startActivity(callRestaurant)
-                    } else {
-                        Toast.makeText(requireContext(), R.string.alert_details_no_phone_number, Toast.LENGTH_SHORT).show()
-                    }
-                }
-
-                binding.btnDetailsLike.setOnClickListener {
-                    isFavoriteCheck = if (isFavoriteCheck) {
-                        Objects.requireNonNull(mAuth.uid)?.let {
-                            workmatesCollectionRef.document(it).update(Constants.FAVORITE_FIELD, FieldValue.arrayRemove(placeId))
+        restaurantViewModel.detailsResultPS
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { detailsResult ->
+                    val imageUrl: String
+                    if (detailsResult != null) {
+                        binding.tvDetailsNameRestaurant.text = detailsResult.name
+                        binding.tvDetailsInformation.text = detailsResult.address
+                        binding.ratingDetails.rating = detailsResult.rating * 3 / 5
+                        if (detailsResult.detailsPhotos != null) {
+                            imageUrl = getPhoto(detailsResult.detailsPhotos!![0].photoReference, detailsResult.detailsPhotos!![0].width)
+                            Picasso.get().load(imageUrl).fit().centerCrop().into(binding.ivDetailsPicture)
+                        } else {
+                            binding.ivDetailsPicture.setImageResource(R.drawable.ic_broken_image)
                         }
-                        binding.btnDetailsLike.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_like_red, 0, 0)
-                        false
-                    } else {
-                        Objects.requireNonNull(mAuth.uid)?.let {
-                            workmatesCollectionRef.document(it).update(Constants.FAVORITE_FIELD, FieldValue.arrayUnion(placeId))
+
+                        binding.btnDetailsCall.setOnClickListener {
+                            if (detailsResult.formattedPhoneNumber != null) {
+                                val callRestaurant = Intent(Intent.ACTION_DIAL)
+                                callRestaurant.data = Uri.parse("tel:${detailsResult.formattedPhoneNumber}")
+                                startActivity(callRestaurant)
+                            } else {
+                                Toast.makeText(requireContext(), R.string.alert_details_no_phone_number, Toast.LENGTH_SHORT).show()
+                            }
                         }
-                        binding.btnDetailsLike.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_like_yellow, 0, 0)
-                        true
-                    }
-                }
 
-                binding.btnDetailsWebsite.setOnClickListener {
-                    if (detailsResult.website != null) {
-                        val linkRestaurant = Intent(Intent.ACTION_VIEW)
-                        linkRestaurant.data = Uri.parse(detailsResult.website)
-                        startActivity(linkRestaurant)
-                    } else {
-                        Toast.makeText(requireContext(), R.string.alert_details_no_website, Toast.LENGTH_SHORT).show()
-                    }
-                }
+                        binding.btnDetailsLike.setOnClickListener {
+                            isFavoriteCheck = if (isFavoriteCheck) {
+                                Objects.requireNonNull(mAuth.uid)?.let {
+                                    workmatesCollectionRef.document(it).update(Constants.FAVORITE_FIELD, FieldValue.arrayRemove(placeId))
+                                }
+                                binding.btnDetailsLike.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_like_red, 0, 0)
+                                false
+                            } else {
+                                Objects.requireNonNull(mAuth.uid)?.let {
+                                    workmatesCollectionRef.document(it).update(Constants.FAVORITE_FIELD, FieldValue.arrayUnion(placeId))
+                                }
+                                binding.btnDetailsLike.setCompoundDrawablesWithIntrinsicBounds(0, R.drawable.ic_like_yellow, 0, 0)
+                                true
+                            }
+                        }
 
-                binding.fabDetailsChoice.setOnClickListener {
-                    if (fragmentChoice == 1) {
-                        saveRestaurantForLunch(this.placeId, detailsResult.name)
-                        saveData(this.placeId)
-                        alarmNotification(detailsResult.name, detailsResult.address, workmatesToday)
-                    } else {
-                        saveRestaurantForLunch(restaurantResult.placeId, restaurantResult.name)
-                        saveData(restaurantResult.placeId)
-                        alarmNotification(restaurantResult.name, restaurantResult.address, workmatesToday)
+                        binding.btnDetailsWebsite.setOnClickListener {
+                            if (detailsResult.website != null) {
+                                val linkRestaurant = Intent(Intent.ACTION_VIEW)
+                                linkRestaurant.data = Uri.parse(detailsResult.website)
+                                startActivity(linkRestaurant)
+                            } else {
+                                Toast.makeText(requireContext(), R.string.alert_details_no_website, Toast.LENGTH_SHORT).show()
+                            }
+                        }
+
+                        binding.fabDetailsChoice.setOnClickListener {
+                            if (fragmentChoice == 1) {
+                                saveRestaurantForLunch(this.placeId, detailsResult.name)
+                                saveData(this.placeId)
+                                alarmNotification(detailsResult.name, detailsResult.address, workmatesToday)
+                            } else {
+                                saveRestaurantForLunch(restaurantResult.placeId, restaurantResult.name)
+                                saveData(restaurantResult.placeId)
+                                alarmNotification(restaurantResult.name, restaurantResult.address, workmatesToday)
+                            }
+                        }
                     }
                 }
-            }
-        }
+        restaurantViewModel.apiCallDetailsRestaurant(placeId, BuildConfig.ApiKey)
     }
 
     private fun saveData(placeId: String?) {

@@ -1,8 +1,8 @@
 package com.gallosalocin.go4lunch.models
 
-import com.gallosalocin.go4lunch.services.dto.RestaurantGeometry
-import com.gallosalocin.go4lunch.services.dto.RestaurantOpeningHours
-import com.gallosalocin.go4lunch.services.dto.RestaurantPhoto
+import com.gallosalocin.go4lunch.data.network.dto.RestaurantGeometry
+import com.gallosalocin.go4lunch.data.network.dto.RestaurantOpeningHours
+import com.gallosalocin.go4lunch.data.network.dto.RestaurantPhoto
 import com.google.gson.annotations.SerializedName
 import java.io.Serializable
 

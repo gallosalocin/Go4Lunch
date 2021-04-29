@@ -37,6 +37,8 @@ import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.QuerySnapshot
 import dagger.hilt.android.AndroidEntryPoint
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.schedulers.Schedulers
 import timber.log.Timber
 import java.util.*
 
@@ -213,46 +215,51 @@ class ListViewFragment : Fragment(R.layout.fragment_list_view) {
 
     // Get details restaurant from api
     private fun getRestaurantDetails(placeId: String) {
-        restaurantViewModel.getDetailsRestaurant(placeId, BuildConfig.ApiKey).subscribe { detailsResult ->
-            val currentLocation = Location("")
-            currentLocation.latitude = latitude
-            currentLocation.longitude = longitude
-            val restaurantLocation = Location("")
-            if (detailsResult != null) {
-                restaurantLocation.latitude = detailsResult.detailsGeometry.location.lat.toDouble()
-                restaurantLocation.longitude = detailsResult.detailsGeometry.location.lng.toDouble()
-                val occurrences = Collections.frequency(chosenRestaurantsList, placeId)
-                if (restaurantResultPredictionsList.isNotEmpty()) {
-                    if (placeId != restaurantResultPredictionsList[0].placeId) {
-                        restaurantResultPredictionsList.add(0, RestaurantResult(
-                                name = detailsResult.name,
-                                geometry = detailsResult.detailsGeometry,
-                                restaurantOpeningHours = detailsResult.restaurantOpeningHours,
-                                address = detailsResult.address,
-                                placeId = placeId,
-                                restaurantPhotos = detailsResult.detailsPhotos,
-                                rating = detailsResult.rating * 3 / 5,
-                                workmates = occurrences.toFloat(),
-                                distance = currentLocation.distanceTo(restaurantLocation).toInt()
-                        ))
+        restaurantViewModel.detailsResultPS
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe { detailsResult ->
+                    val currentLocation = Location("")
+                    currentLocation.latitude = latitude
+                    currentLocation.longitude = longitude
+                    val restaurantLocation = Location("")
+                    if (detailsResult != null) {
+                        restaurantLocation.latitude = detailsResult.detailsGeometry.location.lat.toDouble()
+                        restaurantLocation.longitude = detailsResult.detailsGeometry.location.lng.toDouble()
+                        val occurrences = Collections.frequency(chosenRestaurantsList, placeId)
+                        if (restaurantResultPredictionsList.isNotEmpty()) {
+                            if (placeId != restaurantResultPredictionsList[0].placeId) {
+                                restaurantResultPredictionsList.add(0, RestaurantResult(
+                                        name = detailsResult.name,
+                                        geometry = detailsResult.detailsGeometry,
+                                        restaurantOpeningHours = detailsResult.restaurantOpeningHours,
+                                        address = detailsResult.address,
+                                        placeId = placeId,
+                                        restaurantPhotos = detailsResult.detailsPhotos,
+                                        rating = detailsResult.rating * 3 / 5,
+                                        workmates = occurrences.toFloat(),
+                                        distance = currentLocation.distanceTo(restaurantLocation).toInt()
+                                ))
+                            }
+                        } else {
+                            restaurantResultPredictionsList.add(0, RestaurantResult(
+                                    name = detailsResult.name,
+                                    geometry = detailsResult.detailsGeometry,
+                                    restaurantOpeningHours = detailsResult.restaurantOpeningHours,
+                                    address = detailsResult.address,
+                                    placeId = placeId,
+                                    restaurantPhotos = detailsResult.detailsPhotos,
+                                    rating = detailsResult.rating * 3 / 5,
+                                    workmates = occurrences.toFloat(),
+                                    distance = currentLocation.distanceTo(restaurantLocation).toInt()
+                            ))
+                        }
+                        restaurantAdapter.submitList(restaurantResultPredictionsList)
+                        binding.rvListView.adapter = restaurantAdapter
                     }
-                } else {
-                    restaurantResultPredictionsList.add(0, RestaurantResult(
-                            name = detailsResult.name,
-                            geometry = detailsResult.detailsGeometry,
-                            restaurantOpeningHours = detailsResult.restaurantOpeningHours,
-                            address = detailsResult.address,
-                            placeId = placeId,
-                            restaurantPhotos = detailsResult.detailsPhotos,
-                            rating = detailsResult.rating * 3 / 5,
-                            workmates = occurrences.toFloat(),
-                            distance = currentLocation.distanceTo(restaurantLocation).toInt()
-                    ))
                 }
-                restaurantAdapter.submitList(restaurantResultPredictionsList)
-                binding.rvListView.adapter = restaurantAdapter
-            }
-        }
+        restaurantViewModel.apiCallDetailsRestaurant(placeId, BuildConfig.ApiKey)
+
     }
 
     // Get nearby restaurants from api
