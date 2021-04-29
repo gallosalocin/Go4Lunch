@@ -29,6 +29,7 @@ import com.google.firebase.firestore.*
 import com.squareup.picasso.Picasso
 import dagger.hilt.android.AndroidEntryPoint
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
+import io.reactivex.rxjava3.disposables.Disposable
 import io.reactivex.rxjava3.schedulers.Schedulers
 import timber.log.Timber
 import java.util.*
@@ -49,6 +50,8 @@ class LunchFragment : Fragment(R.layout.fragment_lunch) {
     private var isRestaurantCheck = false
     private var isFavoriteCheck = false
 
+    private lateinit var disposable: Disposable
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         _binding = FragmentLunchBinding.inflate(inflater, container, false)
         return binding.root
@@ -63,7 +66,7 @@ class LunchFragment : Fragment(R.layout.fragment_lunch) {
     }
 
     private fun getRestaurantDetails(placeId: String) {
-        restaurantViewModel.detailsResultPS
+        disposable = restaurantViewModel.detailsResultPS
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { detailsResult ->
@@ -233,5 +236,10 @@ class LunchFragment : Fragment(R.layout.fragment_lunch) {
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null
+    }
+
+    override fun onDestroy() {
+        disposable.dispose()
+        super.onDestroy()
     }
 }

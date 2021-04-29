@@ -49,7 +49,9 @@ import com.google.firebase.firestore.FirebaseFirestoreException
 import com.google.firebase.firestore.ListenerRegistration
 import com.google.firebase.firestore.QuerySnapshot
 import dagger.hilt.android.AndroidEntryPoint
+import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers
 import io.reactivex.rxjava3.disposables.Disposable
+import io.reactivex.rxjava3.schedulers.Schedulers
 import pub.devrel.easypermissions.AppSettingsDialog
 import pub.devrel.easypermissions.EasyPermissions
 import pub.devrel.easypermissions.EasyPermissions.PermissionCallbacks
@@ -197,7 +199,10 @@ class MapViewFragment : Fragment(R.layout.fragment_map_view), OnMapReadyCallback
     private fun getNearbyRestaurants() {
         val type = "restaurant"
 
-        disposable = restaurantViewModel.getNearbyRestaurantList(currentLocation, radius.toInt(), type, BuildConfig.ApiKey).subscribe {
+        disposable = restaurantViewModel.nearbyRestaurantListPS
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe {
             for (i in it.indices) {
                 val latLng = LatLng(
                         it[i].geometry.location.lat.toDouble(),
@@ -219,6 +224,7 @@ class MapViewFragment : Fragment(R.layout.fragment_map_view), OnMapReadyCallback
                 }
             }
         }
+        restaurantViewModel.apiCallNearbyRestaurant(currentLocation, radius.toInt(), type, BuildConfig.ApiKey)
     }
 
     // Bitmap Descriptor
